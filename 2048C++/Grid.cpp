@@ -22,7 +22,7 @@ const string magenta("\033[0;35m");
 Grid::Grid(string sStr, int size)
 {
 	this->size = size;
-	grid = vector<vector<Box>>(size, vector<Box>(4));
+	grid = vector<vector<Box>>(size, vector<Box>(size));
 	int number;
 	string letter;
 	for (size_t i = 0; i < size * size; i++)
