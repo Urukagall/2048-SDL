@@ -8,6 +8,8 @@
 #include "Grid.h"
 #include "Test.h"
 #include <SDL.h>
+#include "SDL_image.h"
+#include <SDL_ttf.h>
 using namespace std;
 
 
@@ -26,7 +28,32 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	SDL_Window* window = SDL_CreateWindow("Cube Rouge", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1920, 1080, SDL_WINDOW_SHOWN);
+	if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
+		// Gestion de l'erreur d'initialisation de SDL_image
+		std::cerr << "Échec de l'initialisation de SDL_image : " << IMG_GetError() << std::endl;
+		return 1;
+	}
+
+	// Obtenir la résolution de l'écran
+	int screenWidth, screenHeight;
+	SDL_DisplayMode displayMode;
+	if (SDL_GetCurrentDisplayMode(0, &displayMode) == 0) {
+		screenWidth = displayMode.w;
+		screenHeight = displayMode.h;
+	}
+	else {
+		// Gestion de l'erreur d'obtention de la résolution de l'écran
+		std::cerr << "Échec de l'obtention de la résolution de l'écran : " << SDL_GetError() << std::endl;
+		return 1;
+	}
+
+	SDL_Surface* imageSurface = IMG_Load("Image/Home.png");
+	if (!imageSurface) {
+		// Gestion de l'erreur de chargement de l'image
+		std::cerr << "Échec de chargement de l'image : " << IMG_GetError() << std::endl;
+		return 1;
+	}
+	SDL_Window* window = SDL_CreateWindow("Cyberpunk2077-2048", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
 	if (window == nullptr) {
 		std::cerr << "Erreur lors de la création de la fenêtre : " << SDL_GetError() << std::endl;
 		SDL_Quit();
@@ -40,12 +67,17 @@ int main(int argc, char* argv[])
 		SDL_Quit();
 		return 1;
 	}
+	// Création d'une texture à partir de l'image
+	SDL_Texture* imageTexture = SDL_CreateTextureFromSurface(renderer, imageSurface);
 
-	// Dessiner un cube rouge
-	SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-	SDL_Rect rect = { 100, 100, 200, 200 };
-	SDL_RenderFillRect(renderer, &rect);
-	SDL_RenderPresent(renderer);
+	// Libération de la surface car nous n'en avons plus besoin
+	SDL_FreeSurface(imageSurface);
+
+	//// Dessiner un cube rouge
+	//SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+	//SDL_Rect rect = { 100, 100, 200, 200 };
+	//SDL_RenderFillRect(renderer, &rect);
+	//SDL_RenderPresent(renderer);
 
 	bool quit = false;
 	SDL_Event event;
@@ -53,12 +85,26 @@ int main(int argc, char* argv[])
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
 				quit = true;
+			}else if (event.type == SDL_KEYDOWN) {
+				if (event.key.keysym.sym == SDLK_ESCAPE) {
+					// La touche Échap a été enfoncée
+					quit = true;
+				}
 			}
 		}
+		// Effacement de l'écran
+		SDL_RenderClear(renderer);
+
+		// Affichage de l'image
+		SDL_RenderCopy(renderer, imageTexture, NULL, NULL);
+
+		// Mise à jour de l'affichage
+		SDL_RenderPresent(renderer);
 	}
 
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
+
 	SDL_Quit();
 
 	int size = 0;
@@ -142,4 +188,5 @@ int main(int argc, char* argv[])
 	}
 
 	delete grid;
+
 }
