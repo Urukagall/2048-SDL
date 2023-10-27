@@ -12,9 +12,10 @@ public:
 	vector<vector<Box>> grid;
 	vector<string> color;
 	vector<int> numberValue;
+	SDL_Renderer* renderer;
 
 	Grid(std::string sStr, int size);
-	Grid(int size);
+	Grid(int size, SDL_Renderer* renderer,int screenHeight,int screenWidth);
 	~Grid();
 	void Print();
 	int PlaceNumber();

@@ -4,6 +4,8 @@
 #include <string>
 #include <random>
 #include <cmath>
+#include "SDL.h"
+#include "SDL_ttf.h"
 using namespace std;
 
 const string reset("\033[0m");
@@ -27,7 +29,7 @@ Grid::Grid(string sStr, int size)
 	string letter;
 	for (size_t i = 0; i < size * size; i++)
 	{
-		grid[i / size][i % size] = Box();
+		//grid[i / size][i % size] = Box();
 		letter = sStr[i];
 		number = stoi(letter);
 		grid[i / size][i % size].value = number;
@@ -35,16 +37,28 @@ Grid::Grid(string sStr, int size)
 }
 
 
-Grid::Grid(int size)
+Grid::Grid(int size, SDL_Renderer* renderer ,int screenHeight, int screenWidth)
 {
+	this->renderer = renderer;
+	int anchorX = screenWidth / 2;
+	int anchorY = screenHeight / 10;
+	int boxSize = screenHeight / 5;
+	boxSize = boxSize * 0.80;
 	color = { brightRed,brightGreen,brightYellow,BrightBlue,brightMagenta,brightCyan,red,green,yellow,blue,magenta };
 
 	this->size = size;
 	grid = vector<vector<Box>>(size, vector<Box>(size));
 
-	for (size_t i = 0; i < size * size; i++)
+	for (int i = 0; i < size * size; i++)
 	{
-		grid[i / size][i % size] = Box();
+		if (size == 4)
+		{
+			grid[i / size][i % size] = Box((i % size) * boxSize + anchorX + (boxSize * 0.20) * (i % size), (i / size) * boxSize + anchorY + (boxSize * 0.20) * (i / size), boxSize, boxSize, 0, 0, 0, 0, renderer);
+			
+		}
+		else {
+			grid[i / size][i % size] = Box((i % size) * (boxSize / 2) + anchorX + (boxSize * 0.10) * (i % size), (i / size) * (boxSize / 2) + anchorY + (boxSize * 0.10) * (i / size), (boxSize / 2), (boxSize / 2), 0, 0, 0, 0, renderer);
+		}
 	}
 }
 
@@ -55,43 +69,27 @@ Grid::~Grid()
 
 
 void Grid::Print() {
-	system("cls");
-	cout << endl;
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
 			for (int k = 0; k < color.size(); k++)
 			{
 				if (grid[i][j].value != 0 and grid[i][j].value == pow(2, k))
 				{
-					cout << color[k];
+					cout << color[k]; // A changer pour les couleurs
 				}
 			}
-			if (grid[i][j].value > 1000) {
-				cout << "[ " << grid[i][j].value << "]";
+			grid[i][j].Print();
+			if (grid[i][j].value != 0)
+			{
+				string strValue = to_string(grid[i][j].value);
+				const char* charValue = strValue.c_str();
+				TTF_Font* font = TTF_OpenFont("Font/cyberpunk.ttf", 128);
+				SDL_Surface* textValueSurface = TTF_RenderText_Solid(font, charValue, {238, 229, 0});
+				SDL_Texture* textHomeTexture1 = SDL_CreateTextureFromSurface(renderer, textValueSurface);
+				grid[i][j].PrintText(textHomeTexture1);
 			}
-			else if (grid[i][j].value > 100) {
-				cout << "[ " << grid[i][j].value << " ]";
-			}
-			else if (grid[i][j].value > 10) {
-				cout << "[  " << grid[i][j].value << " ]";
-			}
-			else if (grid[i][j].value != 0) {
-				cout << "[  " << grid[i][j].value << "  ]";
-			}
-			else {
-				cout << "[  " << grid[i][j].value << "  ]";
-			}
-			cout << reset;
 		}
-		cout << endl;
-		for (int i = 0; i < size; i++)
-		{
-			cout << "_______";
-		}
-		cout << endl;
-		cout << endl;
 	}
-	cout << endl;
 }
 
 

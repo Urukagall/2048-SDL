@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
 
 	// Chargement de la police
-	TTF_Font* font = TTF_OpenFont("Font/cyberpunk.ttf", 24); // Remplacez par le chemin de votre police
+	TTF_Font* font = TTF_OpenFont("Font/cyberpunk.ttf", 128); // Remplacez par le chemin de votre police
 
 	if (!font) {
 		std::cerr << "Échec du chargement de la police : " << TTF_GetError() << std::endl;
@@ -124,10 +124,12 @@ int main(int argc, char* argv[])
 	bool badKey = true;
 	string page = "home";
 	string choiceMenu[3] = { "Level1","Level2","Quit" };
+	Grid* grid = new Grid(size, renderer, screenHeight, screenWidth);
 	while (!quit) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
 				quit = true;
+				delete grid;
 			}
 			else if (event.type == SDL_KEYDOWN) {
 				if (page == "home") {
@@ -154,11 +156,18 @@ int main(int argc, char* argv[])
 						else if (choiceMenu[choice] == "Level1") {
 							size = 4;
 							page = "play";
+							grid = new Grid(size, renderer, screenHeight, screenWidth);
 
+							grid->PlaceNumber();
+							grid->PlaceNumber();
 						}
 						else {
 							size = 8;
 							page = "play";
+							grid = new Grid(size, renderer, screenHeight, screenWidth);
+
+							grid->PlaceNumber();
+							grid->PlaceNumber();
 						}
 					}
 					else if (event.key.keysym.sym == SDLK_ESCAPE) {
@@ -208,14 +217,18 @@ int main(int argc, char* argv[])
 		}
 		else if (page == "play") {
 			SDL_RenderCopy(renderer, playTexture, NULL, NULL);
-			Grid* grid = new Grid(size);
+			//Grid* grid = new Grid(size, renderer, screenHeight, screenWidth);
 			grid->Print();
-
+			while (SDL_PollEvent(&event)) {
+				if (event.key.keysym.sym == SDLK_UP) {
+					grid->MoveVertical("up");
+					grid->PlaceNumber();
+				}
+			}
 		}
 
 		// Mise à jour de l'affichage
 		SDL_RenderPresent(renderer);
-
 
 	}
 
