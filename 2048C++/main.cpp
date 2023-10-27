@@ -114,12 +114,9 @@ int main(int argc, char* argv[])
 	 
 
 	
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-
-	SDL_Rect homeRect[3] = { { (screenWidth / 10) * 6, screenHeight / 4, screenWidth / 4, screenHeight / 10 },{ (screenWidth / 10) * 6, (screenHeight / 4) * 2, screenWidth / 4, screenHeight / 10 },{ (screenWidth / 10) * 6, (screenHeight / 4) * 3, screenWidth / 4, screenHeight / 10 } };
-	GameObject choice1((screenWidth / 10) * 6, screenHeight / 4, screenWidth / 4, screenHeight / 10);
-	GameObject choice2( (screenWidth / 10) * 6, (screenHeight / 4) * 2, screenWidth / 4, screenHeight / 10 );
-	GameObject choice3( (screenWidth / 10) * 6, (screenHeight / 4) * 3, screenWidth / 4, screenHeight / 10 );
+	GameObject choice1((screenWidth / 10) * 6, screenHeight / 4, screenWidth / 4, screenHeight / 10, 6, 36, 47,0, renderer);
+	GameObject choice2( (screenWidth / 10) * 6, (screenHeight / 4) * 2, screenWidth / 4, screenHeight / 10, 6, 36, 47,0, renderer);
+	GameObject choice3( (screenWidth / 10) * 6, (screenHeight / 4) * 3, screenWidth / 4, screenHeight / 10, 6, 36, 47,0, renderer);
 	bool quit = false;
 	SDL_Event event;
 	int choice = 0;
@@ -185,22 +182,29 @@ int main(int argc, char* argv[])
 		// Affichage de l'image
 		if (page == "home") {
 			SDL_RenderCopy(renderer, homeTexture, NULL, NULL);
-			choice1.Print(renderer, 6, 36, 47,0);
+			choice1.Print();
 			
-			choice2.Print(renderer, 6, 36, 47, 0);
-			choice3.Print(renderer, 6, 36, 47, 0);
+			choice2.Print();
+			choice3.Print();
 			if (choiceMenu[choice] == "Level1") {
-				choice1.Print(renderer, 13, 45, 60,0);
+				choice1.ChangeColor(13, 45, 60,0);
+				choice2.ChangeColor(6, 36, 47, 0);
+				choice3.ChangeColor(6, 36, 47, 0);
 			}
 			else if (choiceMenu[choice] == "Level2") {
-				choice2.Print(renderer, 13, 45, 60, 0);
+				choice1.ChangeColor(6, 36, 47, 0);
+				choice2.ChangeColor(13, 45, 60, 0);
+				choice3.ChangeColor(6, 36, 47, 0);
 			}
 			else {
-				choice3.Print(renderer, 13, 45, 60, 0);
+				choice1.ChangeColor(6, 36, 47, 0);
+				choice2.ChangeColor(6, 36, 47, 0);
+				choice3.ChangeColor(13, 45, 60, 0);
+
 			}
-			choice1.PrintText(renderer, textHomeTexture1);
-			choice2.PrintText(renderer, textHomeTexture2);
-			choice3.PrintText(renderer, textHomeTexture3);
+			choice1.PrintText(textHomeTexture1);
+			choice2.PrintText(textHomeTexture2);
+			choice3.PrintText(textHomeTexture3);
 		}
 		else if (page == "play") {
 			SDL_RenderCopy(renderer, playTexture, NULL, NULL);
