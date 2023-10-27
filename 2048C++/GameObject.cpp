@@ -15,7 +15,9 @@ GameObject::GameObject(int posX, int posY, int sizeW, int sizeH, int r, int g, i
 	this->renderer  = renderer;
 }
 
-void GameObject::Print()
+
+
+void GameObject::PrintSDL()
 {
 	SDL_Rect rectGameObject = {posX, posY, sizeW, sizeH};
 	SDL_SetRenderDrawColor(renderer, r, g, b, alpha);

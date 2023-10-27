@@ -78,7 +78,7 @@ void Grid::Print() {
 					cout << color[k]; // A changer pour les couleurs
 				}
 			}
-			grid[i][j].Print();
+			grid[i][j].PrintSDL();
 			if (grid[i][j].value != 0)
 			{
 				string strValue = to_string(grid[i][j].value);
