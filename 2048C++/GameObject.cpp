@@ -39,3 +39,10 @@ void GameObject::PrintText(SDL_Texture* textTexture)
 	SDL_RenderCopy(renderer, textTexture, NULL, &rectGameObjectText);
 
 }
+
+void GameObject::PrintImage(SDL_Texture* imageTexture)
+{
+	SDL_Rect rectGameObject = { posX, posY, sizeW, sizeH };
+	SDL_RenderCopy(renderer, imageTexture, NULL, &rectGameObject);
+
+}

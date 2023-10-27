@@ -16,5 +16,5 @@ public:
 	void PrintSDL();
 	void ChangeColor(int r, int g, int b, int alpha );
 	void PrintText( SDL_Texture* textTexture);
-
+	void PrintImage(SDL_Texture* imageTexture);
 };

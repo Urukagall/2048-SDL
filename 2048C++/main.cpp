@@ -3,6 +3,7 @@
 #include <random>
 #include <string>
 #include <windows.h>
+#include <time.h>
 
 #include "Box.h"
 #include "Grid.h"
@@ -64,6 +65,8 @@ int main(int argc, char* argv[])
 	Mix_Music* musicPlay = Mix_LoadMUS("Music/Play.mp3");
 	Mix_Music* musicLose = Mix_LoadMUS("Music/Lose.mp3");
 	Mix_Music* musicWin = Mix_LoadMUS("Music/Win.mp3");
+
+	Mix_Chunk* soundEffect = Mix_LoadWAV("Music/Move.mp3");
 	// Chargement de la police
 	TTF_Font* font = TTF_OpenFont("Font/cyberpunk.ttf", 128); // Remplacez par le chemin de votre police
 
@@ -77,6 +80,10 @@ int main(int argc, char* argv[])
 	SDL_Surface* playSurface = IMG_Load("Image/Play.png");
 	SDL_Surface* loseSurface = IMG_Load("Image/Lose.png");
 	SDL_Surface* winSurface = IMG_Load("Image/Win.png");
+
+
+	// Chargement des images
+	SDL_Surface* lucySurface = IMG_Load("Image/Lucy.png");
 
 
 	SDL_Window* window = SDL_CreateWindow("Cyberpunk2077-2048", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
@@ -98,11 +105,13 @@ int main(int argc, char* argv[])
 	SDL_Texture* playTexture = SDL_CreateTextureFromSurface(renderer, playSurface);
 	SDL_Texture* loseTexture = SDL_CreateTextureFromSurface(renderer, loseSurface);
 	SDL_Texture* winTexture = SDL_CreateTextureFromSurface(renderer, winSurface);
+	SDL_Texture* lucyTexture = SDL_CreateTextureFromSurface(renderer, lucySurface);
 	// Libération de la surface car nous n'en avons plus besoin
 	SDL_FreeSurface(homeSurface);
 	SDL_FreeSurface(playSurface);
 	SDL_FreeSurface(loseSurface);
 	SDL_FreeSurface(winSurface);
+	SDL_FreeSurface(lucySurface);
 
 	// Création d'une surface de texte
 	SDL_Surface* textHomeSurface1 = TTF_RenderText_Solid(font, "LEVEL     4X4 ", { 238, 229, 0 });
@@ -127,6 +136,10 @@ int main(int argc, char* argv[])
 	GameObject choice1((screenWidth / 10) * 6, (screenHeight / 10) *4, screenWidth / 4, screenHeight / 10, 6, 36, 47,0, renderer);
 	GameObject choice2( (screenWidth / 10) * 6, (screenHeight / 10) * 6, screenWidth / 4, screenHeight / 10, 6, 36, 47,0, renderer);
 	GameObject choice3( (screenWidth / 10) * 6, (screenHeight / 10) * 8, screenWidth / 4, screenHeight / 10, 6, 36, 47,0, renderer);
+
+	GameObject lucy(0, screenHeight / 2, screenWidth/5, screenHeight/2, 6, 36, 47, 0, renderer);
+	GameObject lucyText(screenWidth / 6, screenHeight / 2, screenWidth , screenHeight / 10, 6, 36, 47, 0, renderer);
+
 	bool quit = false;
 	SDL_Event event;
 	int choice = 0;
@@ -139,8 +152,26 @@ int main(int argc, char* argv[])
 	bool ArrowKeyWasPressed[4] = { false, false, false,false };
 	bool defeat = false;
 	bool win = false;
+
+	//animation
+	int screenRefreshRate = 0; // Fréquence de rafraîchissement de l'écran
+	if (SDL_GetCurrentDisplayMode(0, &displayMode) == 0) {
+		screenRefreshRate = displayMode.refresh_rate;
+	}
+	else {
+		// Gestion de l'erreur, la fréquence d'images de l'écran est inconnue
+		screenRefreshRate = 60; // Valeur par défaut (60 Hz)
+	}
+	string textToDisplay = "Ceci est un exemple de texte lettre par lettre.";
+	int runText = 1;
+	int textLength = textToDisplay.length();
+	int currentLetter = 0;
+	bool textWritten=false;
+
+	SDL_Color textColor = { 255, 255, 255 };
 	Mix_PlayMusic(musicHome, -1);
-	Mix_VolumeMusic(25);
+	Mix_VolumeMusic(15);
+	Mix_VolumeChunk(soundEffect, 25);
 	SDL_RenderClear(renderer);
 	while (!quit) {
 		if (page == "home") {
@@ -196,19 +227,19 @@ int main(int argc, char* argv[])
 			choice2.PrintSDL();
 			choice3.PrintSDL();
 			if (choiceMenu[choice] == "Level1") {
-				choice1.ChangeColor(43, 0, 1,0);
-				choice2.ChangeColor(129, 253, 223, 0);
-				choice3.ChangeColor(129, 253, 223, 0);
+				choice1.ChangeColor(129, 253, 223,0);
+				choice2.ChangeColor(43, 0, 1, 0);
+				choice3.ChangeColor(43, 0, 1, 0);
 			}
 			else if (choiceMenu[choice] == "Level2") {
-				choice1.ChangeColor(129, 253, 223, 0);
-				choice2.ChangeColor(43, 0, 1, 0);
-				choice3.ChangeColor(129, 253, 223, 0);
-			}
-			else {
-				choice1.ChangeColor(129, 253, 223, 0);
+				choice1.ChangeColor(43, 0, 1, 0);
 				choice2.ChangeColor(129, 253, 223, 0);
 				choice3.ChangeColor(43, 0, 1, 0);
+			}
+			else {
+				choice1.ChangeColor(43, 0, 1, 0);
+				choice2.ChangeColor(43, 0, 1, 0);
+				choice3.ChangeColor(129, 253, 223, 0);
 
 			}
 			choice1.PrintText(textHomeTexture1);
@@ -217,7 +248,54 @@ int main(int argc, char* argv[])
 			title.PrintText(textTitleTexture);
 		}
 		else if (page == "play") {
+			SDL_RenderClear(renderer);
 			SDL_RenderCopy(renderer, playTexture, NULL, NULL);
+			int index = SDL_GetTicks() % screenRefreshRate/2;
+			int indexText = SDL_GetTicks() % screenRefreshRate*10;
+			if (textWritten) {
+				SDL_Surface* textSurface = TTF_RenderText_Solid(font, textToDisplay.c_str(), textColor);
+				SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+				lucyText.PrintText(textTexture);
+				if (0 < index && index < 200) {
+
+					lucy.posX += 10;
+					lucy.PrintImage(lucyTexture);
+					runText += 1;
+				}
+				else {
+					lucy.posX -= 10;
+					lucy.PrintImage(lucyTexture);
+				}
+			}
+			else {
+				if (0 < indexText && indexText < 20) {
+					string partialText = textToDisplay.substr(0, runText);
+					SDL_Surface* textSurface = TTF_RenderText_Solid(font, partialText.c_str(), textColor);
+					SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+					// Afficher le texte
+					lucyText.PrintText(textTexture);
+					lucy.posX += 10;
+					lucy.PrintImage(lucyTexture);
+					runText += 1;
+				}
+				else {
+					string partialText = textToDisplay.substr(0, runText);
+					SDL_Surface* textSurface = TTF_RenderText_Solid(font, partialText.c_str(), textColor);
+					SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+					lucyText.PrintText(textTexture);
+					lucy.posX -= 10;
+					lucy.PrintImage(lucyTexture);
+
+				}
+				if (runText > textLength) {
+					textWritten = true;
+				}
+			}
+
+			lucy.posX = 0;
+			
+
+			
 			//Grid* grid = new Grid(size, renderer, screenHeight, screenWidth);
 			grid->Print();
 			while (SDL_PollEvent(&event)) {
@@ -229,28 +307,33 @@ int main(int argc, char* argv[])
 						ArrowKeyWasPressed[0] = true;
 						grid->MoveVertical("up");
 						grid->PlaceNumber();
+						Mix_PlayChannel(-1, soundEffect, 0);
 					}
 					else if (!ArrowKeyWasPressed[1] && event.key.keysym.sym == SDLK_DOWN) {
 						ArrowKeyWasPressed[1] = true;
 						grid->MoveVertical("down");
 						grid->PlaceNumber();
+						Mix_PlayChannel(-1, soundEffect, 0);
 
 					}
 					else if (event.key.keysym.sym == SDLK_LEFT) {
 						ArrowKeyWasPressed[2] = true;
 						grid->MoveHorizontal("left");
 						grid->PlaceNumber();
+						Mix_PlayChannel(-1, soundEffect, 0);
 					}
 					else if (event.key.keysym.sym == SDLK_RIGHT) {
 						ArrowKeyWasPressed[3] = true;
 						grid->MoveHorizontal("right");
 						grid->PlaceNumber();
+						Mix_PlayChannel(-1, soundEffect, 0);
 					}
 					else if (event.key.keysym.sym == SDLK_ESCAPE) {
 						// La touche Échap a été enfoncée
 						page = "home";
 						Mix_PlayMusic(musicHome, -1);
 					}
+					
 				}else if (event.type == SDL_KEYUP) {
 					// Réinitialisez la variable lorsque la touche est relâchée
 					if (event.key.keysym.sym == SDLK_UP) {
