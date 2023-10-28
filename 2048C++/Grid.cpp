@@ -8,19 +8,6 @@
 #include "SDL_ttf.h"
 using namespace std;
 
-const string reset("\033[0m");
-const string brightRed("\033[0;91m");
-const string brightGreen("\033[0;92m");
-const string brightYellow("\033[0;93m");
-const string BrightBlue("\033[0;94m");
-const string brightMagenta("\033[0;95m");
-const string brightCyan("\033[0;96m");
-const string red("\033[0;31m");
-const string green("\033[0;32m");
-const string yellow("\033[0;33m");
-const string blue("\033[0;34m");
-const string magenta("\033[0;35m");
-
 Grid::Grid(string sStr, int size)
 {
 	this->size = size;
@@ -44,7 +31,7 @@ Grid::Grid(int size, SDL_Renderer* renderer ,int screenHeight, int screenWidth)
 	int anchorY = screenHeight / 10;
 	int boxSize = screenHeight / 5;
 	boxSize = boxSize * 0.80;
-	color = { brightRed,brightGreen,brightYellow,BrightBlue,brightMagenta,brightCyan,red,green,yellow,blue,magenta };
+	color = { { 0, 255, 159 }, { 0, 232, 188 }, { 0, 205, 230 },{ 0, 174, 255 },{ 0, 134, 255 },{ 72, 84, 255 },{ 136, 48, 255 },{ 197, 48, 255 },{ 192, 21, 202 },{ 230, 21, 202 },{ 255, 255, 64 } };
 
 	this->size = size;
 	grid = vector<vector<Box>>(size, vector<Box>(size));
@@ -75,7 +62,10 @@ void Grid::Print() {
 			{
 				if (grid[i][j].value != 0 and grid[i][j].value == pow(2, k))
 				{
-					cout << color[k]; // A changer pour les couleurs
+					grid[i][j].ChangeColor(color[k][0], color[k][1], color[k][2], 1);
+				}else if (grid[i][j].value == 0)
+				{
+					grid[i][j].ChangeColor(0, 0, 0, 1);
 				}
 			}
 			grid[i][j].PrintSDL();

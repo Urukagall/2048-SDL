@@ -10,7 +10,7 @@ public:
 
 	int size;
 	vector<vector<Box>> grid;
-	vector<string> color;
+	vector<vector<int>> color;
 	vector<int> numberValue;
 	SDL_Renderer* renderer;
 
