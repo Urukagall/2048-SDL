@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\danyj\OneDrive\Documents\Gaming Campus\Projets\2048-SDL\SDL2-2.28.4\include;C:\Users\danyj\OneDrive\Documents\Gaming Campus\Projets\2048-SDL\SDL2_ttf-2.20.2\include;C:\Users\danyj\OneDrive\Documents\Gaming Campus\Projets\2048-SDL\SDL2_mixer-2.6.3\include;C:\Users\danyj\OneDrive\Documents\Gaming Campus\Projets\2048-SDL\SDL2_image-2.6.3\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\nhilaire\source\repos\2048-SDL\SDL2_image-2.6.3\include;C:\Users\nhilaire\source\repos\2048-SDL\SDL2_mixer-2.6.3\include;C:\Users\nhilaire\source\repos\2048-SDL\SDL2_ttf-2.20.2\include;C:\Users\nhilaire\source\repos\2048-SDL\SDL2-2.28.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Utilisateur\source\repos\2048-SDL\SDL2_mixer-2.6.3\lib\x64;C:\Users\Utilisateur\source\repos\2048-SDL\SDL2_ttf-2.20.2\lib\x64;C:\Users\Utilisateur\source\repos\2048-SDL\SDL2_image-2.6.3\lib\x64;C:\Users\Utilisateur\source\repos\2048-SDL\SDL2-2.28.4\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -138,12 +138,14 @@
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Test.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Box.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="Test.h" />
+    <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
