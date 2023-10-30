@@ -92,22 +92,8 @@ int Grid::GenerateRandomNumber(int randomNumber) {
 	return distribution(generator);
 }
 
-void Grid::SpawnNumber(int& randomNumber) {
-	int numberZero = 0;
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			if (grid[i][j].value == 0)
-			{
-				numberZero += 1;
-				if (numberZero == randomNumber)
-				{
-					grid[i][j].value = GenerateRandomNumber(2) * 2;
-				}
-			}
-		}
-	}
-}
-int Grid::PlaceNumber() {
+//méthode place un nombre dans la grille
+void Grid::PlaceNumber() {
 	vector<Box> empty;
 	int numberZero = 0;
 	int randomPos = 0;
@@ -124,37 +110,59 @@ int Grid::PlaceNumber() {
 
 	randomPos = GenerateRandomNumber(numberZero);
 
-	SpawnNumber(randomPos);
+	int indexZero = 0;
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (grid[i][j].value == 0)
+			{
+				indexZero += 1;
+				if (indexZero == randomPos)
+				{
+					grid[i][j].value = GenerateRandomNumber(2) * 2;
+				}
+			}
+		}
+	}
 
-	return numberZero;
+
 }
 
-void Grid::MoveHorizontal(string move) {
+//méthode de déplacement horizontale
+bool Grid::MoveHorizontal(string move) {
+
+	//récupère les valuer de la grille avant le déplacement
+	vector<vector<Box>> gridStart = grid;
+
 	for (int i = 0; i < size; i++) {
 		vector<int> row;
 
+		//rajoute les valeurs non nul de la ligne dans une variable
 		for (int j = 0; j < size; j++) {
 			if (grid[i][j].value != 0) {
 				row.push_back(grid[i][j].value);
 			}
 		}
 		if (move == "left") {
+			//rajoute des 0 a la droite de la ligne pour remplir la ligne (simule un déplacement vers la gauche)
 			while (row.size() < size) {
 				row.push_back(0);
 			}
+			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par la gauche
 			for (int j = 0; j < size - 1; j++) {
-				if (row[j] == row[j + 1] && row[j] != 0) { // a changer pour que la valeur soit bonne pour vers la droite
+				if (row[j] == row[j + 1] && row[j] != 0) {
 					row[j] *= 2;
 					row[j + 1] = 0;
 				}
 			}
 		}
 		else {
+			//rajoute des 0 a la gauche de la ligne pour remplir la ligne (simule un déplacement vers la droite)
 			while (row.size() < size) {
 				row.insert(row.begin(), 0);
 			}
+			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par la droite
 			for (int j = size - 1; j > 0; j--) {
-				if (row[j] == row[j - 1] && row[j] != 0) { // a changer pour que la valeur soit bonne pour vers la droite
+				if (row[j] == row[j - 1] && row[j] != 0) {
 					row[j] *= 2;
 					row[j - 1] = 0;
 				}
@@ -163,7 +171,7 @@ void Grid::MoveHorizontal(string move) {
 
 
 
-		// Glissement des chiffres vers la gauche
+		//rajoute les valeurs non nul de la ligne dans une variable
 		vector<int> newRow;
 		for (int j = 0; j < size; j++) {
 			if (row[j] != 0) {
@@ -171,11 +179,13 @@ void Grid::MoveHorizontal(string move) {
 			}
 		}
 
+		//rajoute des 0 a la droite de la ligne pour remplir la ligne (simule un déplacement vers la gauche)
 		if (move == "left") {
 			while (newRow.size() < size) {
 				newRow.push_back(0);
 			}
 		}
+		//rajoute des 0 a la gauche de la ligne pour remplir la ligne (simule un déplacement vers la droite)
 		else {
 			while (newRow.size() < size) {
 				newRow.insert(newRow.begin(), 0);
@@ -183,37 +193,62 @@ void Grid::MoveHorizontal(string move) {
 
 		}
 
+		//rajoute les valeurs dans la grille
 		for (int j = 0; j < size; j++) {
 			grid[i][j].value = newRow[j];
 		}
 	}
 
+	//récupère les valuer de la grille après le déplacement
+	vector<vector<Box>> gridEnd = grid;
+
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			//si la grille avant et après le déplacement est la même renvoie true pour dire qu'il ne faut pas regénérer un nombre car il n'y a eu aucun mouvement
+			if (gridStart[i][j].value != gridEnd[i][j].value) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
-void Grid::MoveVertical(string move) {
+bool Grid::MoveVertical(string move) {
+
+	//récupère les valuer de la grille avant le déplacement
+
+	vector<vector<Box>> gridStart = grid;
+
 	for (int i = 0; i < size; i++) {
 		vector<int> column;
 
+		//rajoute les valeurs non nul de la colonne dans une variable
 		for (int j = 0; j < size; j++) {
 			if (grid[j][i].value != 0) {
 				column.push_back(grid[j][i].value);
 			}
 		}
 		if (move == "up") {
+			//rajoute des 0 en bas de la colonne pour remplir la colonne (simule un déplacement vers le haut)
 			while (column.size() < size) {
 				column.push_back(0);
 			}
+			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par le haut
 			for (int j = 0; j < size - 1; j++) {
-				if (column[j] == column[j + 1] && column[j] != 0) { // a changer pour que la valeur soit bonne pour vers la droite
+				if (column[j] == column[j + 1] && column[j] != 0) {
 					column[j] *= 2;
 					column[j + 1] = 0;
 				}
 			}
 		}
 		else {
+			//rajoute des 0 en haut de la colonne pour remplir la ligne (simule un déplacement vers la bas)
 			while (column.size() < size) {
 				column.insert(column.begin(), 0);
 			}
+			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par le bas
 			for (int j = size - 1; j >= 1; j--) {
 				if (column[j] == column[j - 1] && column[j] != 0) {
 					column[j] *= 2;
@@ -223,29 +258,44 @@ void Grid::MoveVertical(string move) {
 		}
 
 
-		// Glissement des chiffres vers le bas
+		//rajoute les valeurs non nul de la colonne dans une variable
 		vector<int> newColumn;
 		for (int j = 0; j < size; j++) {
 			if (column[j] != 0) {
 				newColumn.push_back(column[j]);
 			}
 		}
+		//rajoute des 0 en bas de la colonne pour remplir la colonne (simule un déplacement vers le haut)
 		if (move == "up") {
 			while (newColumn.size() < size) {
 				newColumn.push_back(0);
 			}
 		}
 		else {
+			//rajoute des 0 en haut de la colonne pour remplir la ligne (simule un déplacement vers la bas)
 			while (newColumn.size() < size) {
 				newColumn.insert(newColumn.begin(), 0);
 			}
 		}
+		//rajoute les valeurs dans la grille
 		for (int j = 0; j < size; j++) {
 			grid[j][i].value = newColumn[j];
 		}
 	}
 
 
+	vector<vector<Box>> gridEnd = grid;
+
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			if (gridStart[i][j].value != gridEnd[i][j].value) {
+				return true;
+			}
+		}
+	}
+	return false;
 
 }
 

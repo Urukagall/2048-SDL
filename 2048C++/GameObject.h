@@ -12,6 +12,7 @@ public:
 	int b;
 	int alpha;
 	SDL_Renderer* renderer;
+	GameObject();
 	GameObject(int posX,int posY, int sizeW, int sizeH, int r, int g, int b, int alpha, SDL_Renderer* renderer);
 	void PrintSDL();
 	void ChangeColor(int r, int g, int b, int alpha );

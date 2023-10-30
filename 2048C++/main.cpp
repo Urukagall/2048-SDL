@@ -9,6 +9,7 @@
 #include "Grid.h"
 #include "Test.h"
 #include "GameObject.h"
+#include "Window.h"
 
 #include <SDL.h>
 #include "SDL_image.h"
@@ -46,5 +47,8 @@ int main(int argc, char* argv[])
 		// Gestion de l'erreur
 	}
 
+
+
+	Window window;
 
 }

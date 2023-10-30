@@ -2,6 +2,12 @@
 #include <iostream>
 #include <SDL.h>
 using namespace std;
+
+GameObject::GameObject()
+{
+
+}
+
 GameObject::GameObject(int posX, int posY, int sizeW, int sizeH, int r, int g, int b, int alpha, SDL_Renderer* renderer)
 {
 	this->posX = posX;

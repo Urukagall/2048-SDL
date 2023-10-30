@@ -18,13 +18,12 @@ public:
 	Grid(int size, SDL_Renderer* renderer,int screenHeight,int screenWidth);
 	~Grid();
 	void Print();
-	int PlaceNumber();
+	void PlaceNumber();
 	int GenerateRandomNumber(int randomNumber);
-	void MoveHorizontal(string move);
-	void MoveVertical(string move);
+	bool MoveHorizontal(string move);
+	bool MoveVertical(string move);
 	void Defeat(bool& ifDefeat);
 	void Win(bool& win);
-	void SpawnNumber(int& randomNumber);
 	bool CompareTest(string sStr);
 
 

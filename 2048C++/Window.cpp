@@ -16,84 +16,82 @@
 #include "Test.h"
 #include "GameObject.h"
 
-Window::Window(SDL_Renderer* renderer) {
-
+Window::Window() {
 	// Obtenir la résolution de l'écran
-	int screenWidth, screenHeight;
 	SDL_DisplayMode displayMode;
 	if (SDL_GetCurrentDisplayMode(0, &displayMode) == 0) {
-		this->screenWidth = displayMode.w;
-		this->screenHeight = displayMode.h;
+		screenWidth = displayMode.w;
+		screenHeight = displayMode.h;
 	}
 	else {
 		// Gestion de l'erreur d'obtention de la résolution de l'écran
 		std::cerr << "Échec de l'obtention de la résolution de l'écran : " << SDL_GetError() << std::endl;
 	}
 
-	//Chargement de la musique
-	Mix_Music* musicHome = Mix_LoadMUS("Music/Home.mp3");
-	Mix_Music* musicPlay = Mix_LoadMUS("Music/Play.mp3");
-	Mix_Music* musicLose = Mix_LoadMUS("Music/Lose.mp3");
-	Mix_Music* musicWin = Mix_LoadMUS("Music/Win.mp3");
 
-	// Chargement de la police
-	TTF_Font* font = TTF_OpenFont("Font/cyberpunk.ttf", 128); // Remplacez par le chemin de votre police
-	if (!font) {
-		std::cerr << "Échec du chargement de la police : " << TTF_GetError() << std::endl;
-	}
-
-	// Chargement des fonds
-	SDL_Surface* homeSurface = IMG_Load("Image/Home.png");
-	SDL_Surface* playSurface = IMG_Load("Image/Play.png");
-	SDL_Surface* loseSurface = IMG_Load("Image/Lose.png");
-	SDL_Surface* winSurface = IMG_Load("Image/Win.png");
-
-
-	// Chargement des images
-	SDL_Surface* lucySurface = IMG_Load("Image/Lucy.png");
-
-
-	SDL_Window* window = SDL_CreateWindow("Cyberpunk2077-2048", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("Cyberpunk2077-2048", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screenWidth, screenHeight, SDL_WINDOW_SHOWN);
 	if (window == nullptr) {
 		std::cerr << "Erreur lors de la création de la fenêtre : " << SDL_GetError() << std::endl;
 		SDL_Quit();
 	}
 
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
 	if (renderer == nullptr) {
 		std::cerr << "Erreur lors de la création du renderer : " << SDL_GetError() << std::endl;
 		SDL_DestroyWindow(window);
 		SDL_Quit();
 	}
-	// Création d'une texture à partir de l'image
-	SDL_Texture* homeTexture = SDL_CreateTextureFromSurface(renderer, homeSurface);
-	SDL_Texture* playTexture = SDL_CreateTextureFromSurface(renderer, playSurface);
-	SDL_Texture* loseTexture = SDL_CreateTextureFromSurface(renderer, loseSurface);
-	SDL_Texture* winTexture = SDL_CreateTextureFromSurface(renderer, winSurface);
-	SDL_Texture* lucyTexture = SDL_CreateTextureFromSurface(renderer, lucySurface);
-	// Libération de la surface car nous n'en avons plus besoin
-	SDL_FreeSurface(homeSurface);
-	SDL_FreeSurface(playSurface);
-	SDL_FreeSurface(loseSurface);
-	SDL_FreeSurface(winSurface);
-	SDL_FreeSurface(lucySurface);
 
+
+	//Chargement de la musique
+	musicList["musicHome"] = Mix_LoadMUS("Music/Home.mp3");
+	musicList["musicPlay"] = Mix_LoadMUS("Music/Play.mp3");
+	musicList["musicLose"] = Mix_LoadMUS("Music/Lose.mp3");
+	musicList["musicWin"] = Mix_LoadMUS("Music/Win.mp3");
+
+
+	// Chargement de la police
+	font = TTF_OpenFont("Font/cyberpunk.ttf", 128); // Remplacez par le chemin de votre police
+	if (!font) {
+		std::cerr << "Échec du chargement de la police : " << TTF_GetError() << std::endl;
+	}
+
+	// Chargement des fonds
+	surfaceList["homeSurface"] = IMG_Load("Image/Home.png");
+	surfaceList["playSurface"] = IMG_Load("Image/Play.png");
+	surfaceList["loseSurface"] = IMG_Load("Image/Lose.png");
+	surfaceList["winSurface"] = IMG_Load("Image/Win.png");
 	// Création d'une surface de texte
-	SDL_Surface* textHomeSurface1 = TTF_RenderText_Solid(font, "LEVEL     4X4 ", { 238, 229, 0 });
-	SDL_Surface* textHomeSurface2 = TTF_RenderText_Solid(font, "LEVEL     8X8 ", { 238, 229, 0 });
-	SDL_Surface* textHomeSurface3 = TTF_RenderText_Solid(font, "Quitter", { 238, 229, 0 });
-	SDL_Surface* textTitleSurface = TTF_RenderText_Solid(font, "Cyberpunk 2048", { 238, 229, 0 });
-	// Création d'une texture à partir de la surface de texte
-	SDL_Texture* textHomeTexture1 = SDL_CreateTextureFromSurface(renderer, textHomeSurface1);
-	SDL_Texture* textHomeTexture2 = SDL_CreateTextureFromSurface(renderer, textHomeSurface2);
-	SDL_Texture* textHomeTexture3 = SDL_CreateTextureFromSurface(renderer, textHomeSurface3);
-	SDL_Texture* textTitleTexture = SDL_CreateTextureFromSurface(renderer, textTitleSurface);
-	// Libération de la surface, plus nécessaire
-	SDL_FreeSurface(textHomeSurface1);
-	SDL_FreeSurface(textHomeSurface2);
-	SDL_FreeSurface(textHomeSurface3);
-	SDL_FreeSurface(textTitleSurface);
+	surfaceList["textHomeSurface1"] = TTF_RenderText_Solid(font, "LEVEL     4X4 ", { 238, 229, 0 });
+	surfaceList["textHomeSurface2"] = TTF_RenderText_Solid(font, "LEVEL     8X8 ", { 238, 229, 0 });
+	surfaceList["textHomeSurface3"] = TTF_RenderText_Solid(font, "Quitter", { 238, 229, 0 });
+	surfaceList["textTitleSurface"] = TTF_RenderText_Solid(font, "Cyberpunk 2048", { 238, 229, 0 });
 
+	// Chargement des images
+	surfaceList["lucySurface"] = IMG_Load("Image/Lucy.png");
+
+
+
+
+	// Création d'une texture à partir de l'image
+	textureList["homeTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["homeSurface"]);
+	textureList["playTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["playSurface"]);
+	textureList["loseTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["loseSurface"]);
+	textureList["winTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["winSurface"]);
+	textureList["lucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["lucySurface"]);
+	// Création d'une texture à partir de la surface de texte
+	textureList["textHomeTexture1"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textHomeSurface1"]);
+	textureList["textHomeTexture2"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textHomeSurface2"]);
+	textureList["textHomeTexture3"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textHomeSurface3"]);
+	textureList["textTitleTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textTitleSurface"]);
+
+	// Libération de la surface
+	for (const auto& pair : surfaceList) {
+		SDL_FreeSurface(pair.second);
+	}
+
+	
 	GameObject title((screenWidth / 20) * 4, (screenHeight / 10), screenWidth, screenHeight / 5, 6, 36, 47, 0, renderer);
 	GameObject choice1((screenWidth / 10) * 6, (screenHeight / 10) * 4, screenWidth / 4, screenHeight / 10, 6, 36, 47, 0, renderer);
 	GameObject choice2((screenWidth / 10) * 6, (screenHeight / 10) * 6, screenWidth / 4, screenHeight / 10, 6, 36, 47, 0, renderer);
@@ -102,7 +100,12 @@ Window::Window(SDL_Renderer* renderer) {
 	GameObject lucy(0, screenHeight / 2, screenWidth / 5, screenHeight / 2, 6, 36, 47, 0, renderer);
 	GameObject lucyText(screenWidth / 6, screenHeight / 2, screenWidth, screenHeight / 10, 6, 36, 47, 0, renderer);
 
-
+	gameObjectList["title"] = title;
+	gameObjectList["choice1"] = choice1;
+	gameObjectList["choice2"] = choice2;
+	gameObjectList["choice3"] = choice3;
+	gameObjectList["lucy"] = lucy;
+	gameObjectList["lucyText"] = lucyText;
 
 	this->renderer = renderer;
 	
@@ -110,21 +113,17 @@ Window::Window(SDL_Renderer* renderer) {
 	
 	
 
-	Grid*grid = new Grid(size, renderer, screenHeight, screenWidth);
+	grid = new Grid(size, renderer, screenHeight, screenWidth);
 	SDL_Color textColor = { 255, 255, 255 };
-	Mix_PlayMusic(musicHome, -1);
+	Mix_PlayMusic(musicList["musicHome"], -1);
 	Mix_VolumeMusic(15);
 
 	SDL_RenderClear(renderer);
 	
 
-	bool ArrowKeyWasPressed[4] = { false, false, false,false };
-	bool defeat = false;
-	bool win = false;
 	while (!quit) {
 		if (page == "home") {
-
-			Home(grid);
+			Home();
 		}
 		else if (page == "play") {
 
@@ -141,12 +140,11 @@ Window::Window(SDL_Renderer* renderer) {
 		SDL_RenderPresent(renderer);
 
 	}
+	Close();
 }
 
 
-void Window::Home(Grid*grid) {
-	int choice = 0;
-	string choiceMenu[3] = { "Level1","Level2","Quit" };
+void Window::Home() {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			quit = true;
@@ -173,7 +171,7 @@ void Window::Home(Grid*grid) {
 					quit = true;
 				}
 				else if (choiceMenu[choice] == "Level1") {
-					Mix_PlayMusic(musicPlay, -1);
+					Mix_PlayMusic(musicList["musicPlay"], -1);
 					size = 4;
 					page = "play";
 					grid = new Grid(size, renderer, screenHeight, screenWidth);
@@ -181,7 +179,7 @@ void Window::Home(Grid*grid) {
 					grid->PlaceNumber();
 				}
 				else {
-					Mix_PlayMusic(musicPlay, -1);
+					Mix_PlayMusic(musicList["musicPlay"], -1);
 					size = 8;
 					page = "play";
 					grid = new Grid(size, renderer, screenHeight, screenWidth);
@@ -193,36 +191,36 @@ void Window::Home(Grid*grid) {
 		}
 
 	}
-	SDL_RenderCopy(renderer, homeTexture, NULL, NULL);
-	choice1.PrintSDL();
-	choice2.PrintSDL();
-	choice3.PrintSDL();
+	SDL_RenderCopy(renderer, textureList["homeTexture"], NULL, NULL);
+	gameObjectList["choice1"].PrintSDL();
+	gameObjectList["choice2"].PrintSDL();
+	gameObjectList["choice3"].PrintSDL();
 	if (choiceMenu[choice] == "Level1") {
-		choice1.ChangeColor(129, 253, 223, 0);
-		choice2.ChangeColor(43, 0, 1, 0);
-		choice3.ChangeColor(43, 0, 1, 0);
+		gameObjectList["choice1"].ChangeColor(129, 253, 223, 0);
+		gameObjectList["choice2"].ChangeColor(43, 0, 1, 0);
+		gameObjectList["choice3"].ChangeColor(43, 0, 1, 0);
 	}
 	else if (choiceMenu[choice] == "Level2") {
-		choice1.ChangeColor(43, 0, 1, 0);
-		choice2.ChangeColor(129, 253, 223, 0);
-		choice3.ChangeColor(43, 0, 1, 0);
+		gameObjectList["choice1"].ChangeColor(43, 0, 1, 0);
+		gameObjectList["choice2"].ChangeColor(129, 253, 223, 0);
+		gameObjectList["choice3"].ChangeColor(43, 0, 1, 0);
 	}
 	else {
-		choice1.ChangeColor(43, 0, 1, 0);
-		choice2.ChangeColor(43, 0, 1, 0);
-		choice3.ChangeColor(129, 253, 223, 0);
+		gameObjectList["choice1"].ChangeColor(43, 0, 1, 0);
+		gameObjectList["choice2"].ChangeColor(43, 0, 1, 0);
+		gameObjectList["choice3"].ChangeColor(129, 253, 223, 0);
 
 	}
-	choice1.PrintText(textHomeTexture1);
-	choice2.PrintText(textHomeTexture2);
-	choice3.PrintText(textHomeTexture3);
-	title.PrintText(textTitleTexture);
+	gameObjectList["choice1"].PrintText(textureList["textHomeTexture1"]);
+	gameObjectList["choice2"].PrintText(textureList["textHomeTexture2"]);
+	gameObjectList["choice3"].PrintText(textureList["textHomeTexture3"]);
+	gameObjectList["title"].PrintText(textureList["textTitleTexture"]);
 }
 
 void Window::Play() {
 	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, playTexture, NULL, NULL);
-	lucy.PrintImage(lucyTexture);
+	SDL_RenderCopy(renderer, textureList["playTexture"], NULL, NULL);
+	gameObjectList["lucy"].PrintImage(textureList["lucyTexture"]);
 
 
 
@@ -233,50 +231,53 @@ void Window::Play() {
 			quit = true;
 		}
 		if (event.type == SDL_KEYDOWN) {
-			if (!ArrowKeyWasPressed[0] && event.key.keysym.sym == SDLK_UP) {
-				ArrowKeyWasPressed[0] = true;
-				grid->MoveVertical("up");
-				grid->PlaceNumber();
+			if (!arrowKeyWasPressed[0] && event.key.keysym.sym == SDLK_UP) {
+				arrowKeyWasPressed[0] = true;
+				if (grid->MoveVertical("up")) {
+					grid->PlaceNumber();
+				}
 			}
-			else if (!ArrowKeyWasPressed[1] && event.key.keysym.sym == SDLK_DOWN) {
-				ArrowKeyWasPressed[1] = true;
-				grid->MoveVertical("down");
-				grid->PlaceNumber();
+			else if (!arrowKeyWasPressed[1] && event.key.keysym.sym == SDLK_DOWN) {
+				arrowKeyWasPressed[1] = true;
+				if (grid->MoveVertical("down")) {
+					grid->PlaceNumber();
+				}
 
 
 			}
 			else if (event.key.keysym.sym == SDLK_LEFT) {
-				ArrowKeyWasPressed[2] = true;
-				grid->MoveHorizontal("left");
-				grid->PlaceNumber();
-
+				arrowKeyWasPressed[2] = true;
+				if (grid->MoveHorizontal("left")) {
+					grid->PlaceNumber();
+				}
 			}
 			else if (event.key.keysym.sym == SDLK_RIGHT) {
-				ArrowKeyWasPressed[3] = true;
-				grid->MoveHorizontal("right");
-				grid->PlaceNumber();
+				arrowKeyWasPressed[3] = true;
+				if (grid->MoveHorizontal("right")) {
+					grid->PlaceNumber();
+				}
 
 			}
 			else if (event.key.keysym.sym == SDLK_ESCAPE) {
 				// La touche Échap a été enfoncée
 				page = "home";
-				Mix_PlayMusic(musicHome, -1);
+				Mix_PlayMusic(musicList["musicHome"], -1);
 			}
 
 		}
 		else if (event.type == SDL_KEYUP) {
 			// Réinitialisez la variable lorsque la touche est relâchée
 			if (event.key.keysym.sym == SDLK_UP) {
-				ArrowKeyWasPressed[0] = false;
+				arrowKeyWasPressed[0] = false;
 			}
 			else if (event.key.keysym.sym == SDLK_DOWN) {
-				ArrowKeyWasPressed[1] = false;
+				arrowKeyWasPressed[1] = false;
 			}
 			else if (event.key.keysym.sym == SDLK_LEFT) {
-				ArrowKeyWasPressed[2] = false;
+				arrowKeyWasPressed[2] = false;
 			}
 			else if (event.key.keysym.sym == SDLK_RIGHT) {
-				ArrowKeyWasPressed[3] = false;
+				arrowKeyWasPressed[3] = false;
 			}
 		}
 	}
@@ -284,18 +285,18 @@ void Window::Play() {
 	grid->Win(win);
 	if (win) {
 		page = "Win";
-		Mix_PlayMusic(musicWin, -1);
+		Mix_PlayMusic(musicList["musicWin"], -1);
 	}
 	else if (defeat) {
 		page = "Lose";
-		Mix_PlayMusic(musicLose, -1);
+		Mix_PlayMusic(musicList["musicLose"], -1);
 	}
 }
 
 
 
 void Window::Lose() {
-	SDL_RenderCopy(renderer, loseTexture, NULL, NULL);
+	SDL_RenderCopy(renderer, textureList["loseTexture"], NULL, NULL);
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			quit = true;
@@ -303,7 +304,7 @@ void Window::Lose() {
 		else if (event.key.keysym.sym == SDLK_ESCAPE) {
 			// La touche Échap a été enfoncée
 			page = "home";
-			Mix_PlayMusic(musicHome, -1);
+			Mix_PlayMusic(musicList["musicHome"], -1);
 			defeat = false;
 		}
 
@@ -312,7 +313,7 @@ void Window::Lose() {
 }
 
 void Window::Win() {
-	SDL_RenderCopy(renderer, winTexture, NULL, NULL);
+	SDL_RenderCopy(renderer, textureList["winTexture"], NULL, NULL);
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			quit = true;
@@ -320,7 +321,7 @@ void Window::Win() {
 		else if (event.key.keysym.sym == SDLK_ESCAPE) {
 			// La touche Échap a été enfoncée
 			page = "home";
-			Mix_PlayMusic(musicHome, -1);
+			Mix_PlayMusic(musicList["musicHome"], -1);
 			win = false;
 		}
 	}
@@ -330,6 +331,13 @@ void Window::Close() {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	TTF_CloseFont(font);
+	for (const auto& pair : textureList) {
+		SDL_DestroyTexture(pair.second);
+	}
+	for (const auto& pair : musicList) {
+		Mix_FreeMusic(pair.second);
+	}
+	TTF_Quit();
 	Mix_Quit();
 	SDL_Quit();
 }
