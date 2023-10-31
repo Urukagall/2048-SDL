@@ -10,6 +10,8 @@
 #include <string>
 #include <windows.h>
 #include <time.h>
+#include <chrono>
+
 
 #include "Box.h"
 #include "Grid.h"
@@ -67,7 +69,10 @@ Window::Window() {
 	surfaceList["textHomeSurface2"] = TTF_RenderText_Solid(font, "LEVEL     8X8 ", { 238, 229, 0 });
 	surfaceList["textHomeSurface3"] = TTF_RenderText_Solid(font, "Quitter", { 238, 229, 0 });
 	surfaceList["textTitleSurface"] = TTF_RenderText_Solid(font, "Cyberpunk 2048", { 238, 229, 0 });
-
+	surfaceList["textWinSurface"] = TTF_RenderText_Solid(font, "Vous vous etes enfuis avec Lucy !!!", { 238, 229, 0 });
+	surfaceList["textLoseSurface"] = TTF_RenderText_Solid(font, "Vous n'avez pas reussi a vous enfuir ", { 238, 229, 0 });
+	surfaceList["textLose2Surface"] = TTF_RenderText_Solid(font, "la MAXTAC vous a rattrape !!!", { 238, 229, 0 });
+	surfaceList["textIntroLucy"] = TTF_RenderText_Solid(font, "David !!! Depeche toi de hacker ce terminal !!! La MAXTAC va bientot arriver !!!", { 238, 229, 0 });
 	// Chargement des images
 	surfaceList["lucySurface"] = IMG_Load("Image/Lucy.png");
 
@@ -85,7 +90,9 @@ Window::Window() {
 	textureList["textHomeTexture2"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textHomeSurface2"]);
 	textureList["textHomeTexture3"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textHomeSurface3"]);
 	textureList["textTitleTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textTitleSurface"]);
-
+	textureList["textWinTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textWinSurface"]);
+	textureList["textLoseTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textLoseSurface"]);
+	textureList["textLose2Texture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textLose2Surface"]);
 	// Libération de la surface
 	for (const auto& pair : surfaceList) {
 		SDL_FreeSurface(pair.second);
@@ -93,6 +100,8 @@ Window::Window() {
 
 	
 	GameObject title((screenWidth / 20) * 4, (screenHeight / 10), screenWidth, screenHeight / 5, 6, 36, 47, 0, renderer);
+	GameObject endTitle(0, screenHeight/10 , screenWidth, screenHeight/4, 6, 36, 47, 0, renderer);
+	GameObject end2Title(screenWidth/4, screenHeight / 3, screenWidth/2, screenHeight / 8, 6, 36, 47, 0, renderer);
 	GameObject choice1((screenWidth / 10) * 6, (screenHeight / 10) * 4, screenWidth / 4, screenHeight / 10, 6, 36, 47, 0, renderer);
 	GameObject choice2((screenWidth / 10) * 6, (screenHeight / 10) * 6, screenWidth / 4, screenHeight / 10, 6, 36, 47, 0, renderer);
 	GameObject choice3((screenWidth / 10) * 6, (screenHeight / 10) * 8, screenWidth / 4, screenHeight / 10, 6, 36, 47, 0, renderer);
@@ -101,6 +110,8 @@ Window::Window() {
 	GameObject lucyText(screenWidth / 6, screenHeight / 2, screenWidth, screenHeight / 10, 6, 36, 47, 0, renderer);
 
 	gameObjectList["title"] = title;
+	gameObjectList["endTitle"] = endTitle;
+	gameObjectList["end2Title"] = end2Title;
 	gameObjectList["choice1"] = choice1;
 	gameObjectList["choice2"] = choice2;
 	gameObjectList["choice3"] = choice3;
@@ -122,6 +133,9 @@ Window::Window() {
 	
 
 	while (!quit) {
+
+		startTimer = chrono::high_resolution_clock::now();
+
 		if (page == "home") {
 			Home();
 		}
@@ -135,6 +149,11 @@ Window::Window() {
 		else {
 			Win();
 		}
+
+		endTimer = chrono::high_resolution_clock::now();
+
+		std::chrono::microseconds duration = std::chrono::duration_cast<std::chrono::microseconds>(endTimer - startTimer);
+		std::cout << "Durée de la boucle : " << duration.count() << " microseconds" << std::endl;
 
 		// Mise à jour de l'affichage
 		SDL_RenderPresent(renderer);
@@ -282,7 +301,7 @@ void Window::Play() {
 		}
 	}
 	grid->Defeat(defeat);
-	grid->Win(win);
+	grid->Win(win, valueWin);
 	if (win) {
 		page = "Win";
 		Mix_PlayMusic(musicList["musicWin"], -1);
@@ -297,6 +316,8 @@ void Window::Play() {
 
 void Window::Lose() {
 	SDL_RenderCopy(renderer, textureList["loseTexture"], NULL, NULL);
+	gameObjectList["endTitle"].PrintText(textureList["textLoseTexture"]);
+	gameObjectList["end2Title"].PrintText(textureList["textLose2Texture"]);
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			quit = true;
@@ -314,6 +335,7 @@ void Window::Lose() {
 
 void Window::Win() {
 	SDL_RenderCopy(renderer, textureList["winTexture"], NULL, NULL);
+	gameObjectList["endTitle"].PrintText(textureList["textWinTexture"]);
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			quit = true;

@@ -23,7 +23,7 @@ public:
 	bool MoveHorizontal(string move);
 	bool MoveVertical(string move);
 	void Defeat(bool& ifDefeat);
-	void Win(bool& win);
+	void Win(bool& win, int value);
 	bool CompareTest(string sStr);
 
 

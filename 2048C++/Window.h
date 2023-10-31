@@ -6,6 +6,7 @@
 #include <string>
 #include <windows.h>
 #include <time.h>
+#include <chrono>
 
 #include "Box.h"
 #include "Grid.h"
@@ -19,10 +20,12 @@
 #include <SDL_mixer.h>
 
 using namespace std;
-class SDL_Window;
-class SDL_Renderer;
-class SDL_Surface;
-class SDL_Texture;
+
+struct SDL_Window;
+struct SDL_Renderer;
+struct SDL_Surface;
+struct SDL_Texture;
+
 class Grid;
 class Window
 {
@@ -37,9 +40,12 @@ public:
 	map<string, SDL_Texture*> textureList;
 	map<string, GameObject> gameObjectList;
 	bool arrowKeyWasPressed[4] = { false, false, false, false };
-	bool defeat = false;
+	bool defeat = true;
 	bool win = false;
 	int choice = 0;
+	int valueWin = 2048;
+	chrono::high_resolution_clock::time_point startTimer;
+	chrono::high_resolution_clock::time_point endTimer;
 	string choiceMenu[3] = { "Level1","Level2","Quit" };
 	string page = "home";
 	int size = 0;

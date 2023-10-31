@@ -62,7 +62,7 @@ void Grid::Print() {
 			{
 				if (grid[i][j].value != 0 and grid[i][j].value == pow(2, k))
 				{
-					grid[i][j].ChangeColor(color[k][0], color[k][1], color[k][2], 1);
+					grid[i][j].ChangeColor(color[k-1][0], color[k-1][1], color[k-1][2], 1);
 				}else if (grid[i][j].value == 0)
 				{
 					grid[i][j].ChangeColor(0, 0, 0, 1);
@@ -118,7 +118,11 @@ void Grid::PlaceNumber() {
 				indexZero += 1;
 				if (indexZero == randomPos)
 				{
-					grid[i][j].value = GenerateRandomNumber(2) * 2;
+					if (GenerateRandomNumber(10) == 10){
+						grid[i][j].value = 4;
+					}else {
+						grid[i][j].value = 2;
+					}
 				}
 			}
 		}
@@ -313,10 +317,10 @@ void Grid::Defeat(bool& ifDefeat) {
 		ifDefeat = true;
 	}
 }
-void Grid::Win(bool& win) {
+void Grid::Win(bool& win, int value) {
 	for (int i = 0; i < size; i++) {
 		for (int y = 0; y < size; y++) {
-			if (grid[i][y].value == 64) {
+			if (grid[i][y].value == value) {
 				win = true;
 				break;
 			}
