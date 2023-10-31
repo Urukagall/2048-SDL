@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\djorgeafonso\source\repos\Urukagall\2048-SDL\SDL2_image-2.6.3\include;C:\Users\djorgeafonso\source\repos\Urukagall\2048-SDL\SDL2_mixer-2.6.3\include;C:\Users\djorgeafonso\source\repos\Urukagall\2048-SDL\SDL2_ttf-2.20.2\include;C:\Users\djorgeafonso\source\repos\Urukagall\2048-SDL\SDL2-2.28.4\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\Utilisateur\source\repos\Urukagall\2048-SDL\SDL2_image-2.6.3\include;C:\Users\Utilisateur\source\repos\Urukagall\2048-SDL\SDL2_mixer-2.6.3\include;C:\Users\Utilisateur\source\repos\Urukagall\2048-SDL\SDL2_ttf-2.20.2\include;C:\Users\Utilisateur\source\repos\Urukagall\2048-SDL\SDL2-2.28.4\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\Utilisateur\source\repos\2048-SDL\SDL2_mixer-2.6.3\lib\x64;C:\Users\Utilisateur\source\repos\2048-SDL\SDL2_ttf-2.20.2\lib\x64;C:\Users\Utilisateur\source\repos\2048-SDL\SDL2_image-2.6.3\lib\x64;C:\Users\Utilisateur\source\repos\2048-SDL\SDL2-2.28.4\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

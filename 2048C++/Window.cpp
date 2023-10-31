@@ -18,6 +18,7 @@
 #include "Test.h"
 #include "GameObject.h"
 
+
 Window::Window() {
 	// Obtenir la résolution de l'écran
 	SDL_DisplayMode displayMode;
@@ -64,6 +65,10 @@ Window::Window() {
 	surfaceList["playSurface"] = IMG_Load("Image/Play.png");
 	surfaceList["loseSurface"] = IMG_Load("Image/Lose.png");
 	surfaceList["winSurface"] = IMG_Load("Image/Win.png");
+	surfaceList["introLucySurface"] = IMG_Load("Image/IntroLucy.png");
+	surfaceList["MidLucySurface"] = IMG_Load("Image/MidLucy.png");
+	surfaceList["WinLucySurface"] = IMG_Load("Image/WinLucy.png");
+	surfaceList["LoseLucySurface"] = IMG_Load("Image/LoseLucy.png");
 	// Création d'une surface de texte
 	surfaceList["textHomeSurface1"] = TTF_RenderText_Solid(font, "LEVEL     4X4 ", { 238, 229, 0 });
 	surfaceList["textHomeSurface2"] = TTF_RenderText_Solid(font, "LEVEL     8X8 ", { 238, 229, 0 });
@@ -72,11 +77,8 @@ Window::Window() {
 	surfaceList["textWinSurface"] = TTF_RenderText_Solid(font, "Vous vous etes enfuis avec Lucy !!!", { 238, 229, 0 });
 	surfaceList["textLoseSurface"] = TTF_RenderText_Solid(font, "Vous n'avez pas reussi a vous enfuir ", { 238, 229, 0 });
 	surfaceList["textLose2Surface"] = TTF_RenderText_Solid(font, "la MAXTAC vous a rattrape !!!", { 238, 229, 0 });
-	surfaceList["textIntroLucy"] = TTF_RenderText_Solid(font, "David !!! Depeche toi de hacker ce terminal !!! La MAXTAC va bientot arriver !!!", { 238, 229, 0 });
 	// Chargement des images
 	surfaceList["lucySurface"] = IMG_Load("Image/Lucy.png");
-
-
 
 
 	// Création d'une texture à partir de l'image
@@ -85,6 +87,10 @@ Window::Window() {
 	textureList["loseTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["loseSurface"]);
 	textureList["winTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["winSurface"]);
 	textureList["lucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["lucySurface"]);
+	textureList["introLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["introLucySurface"]);
+	textureList["MidLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["MidLucySurface"]);
+	textureList["WinLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["WinLucySurface"]);
+	textureList["LoseLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["LoseLucySurface"]);
 	// Création d'une texture à partir de la surface de texte
 	textureList["textHomeTexture1"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textHomeSurface1"]);
 	textureList["textHomeTexture2"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textHomeSurface2"]);
@@ -107,7 +113,7 @@ Window::Window() {
 	GameObject choice3((screenWidth / 10) * 6, (screenHeight / 10) * 8, screenWidth / 4, screenHeight / 10, 6, 36, 47, 0, renderer);
 
 	GameObject lucy(0, screenHeight / 2, screenWidth / 5, screenHeight / 2, 6, 36, 47, 0, renderer);
-	GameObject lucyText(screenWidth / 6, screenHeight / 2, screenWidth, screenHeight / 10, 6, 36, 47, 0, renderer);
+	GameObject lucyText(-500, 0, screenWidth, screenHeight , 6, 36, 47, 0, renderer);
 
 	gameObjectList["title"] = title;
 	gameObjectList["endTitle"] = endTitle;
@@ -126,7 +132,7 @@ Window::Window() {
 
 	grid = new Grid(size, renderer, screenHeight, screenWidth);
 	SDL_Color textColor = { 255, 255, 255 };
-	Mix_PlayMusic(musicList["musicHome"], -1);
+
 	Mix_VolumeMusic(15);
 
 	SDL_RenderClear(renderer);
@@ -134,9 +140,9 @@ Window::Window() {
 
 	while (!quit) {
 
-		startTimer = chrono::high_resolution_clock::now();
 
 		if (page == "home") {
+			Mix_PlayMusic(musicList["musicHome"], -1);
 			Home();
 		}
 		else if (page == "play") {
@@ -150,25 +156,7 @@ Window::Window() {
 			Win();
 		}
 
-		endTimer = chrono::high_resolution_clock::now();
-		chrono::microseconds duration = chrono::duration_cast<chrono::microseconds>(endTimer - startTimer);
 
-
-		frameCount++;
-		now = chrono::high_resolution_clock::now();
-		chrono::microseconds elapsed = chrono::duration_cast<chrono::microseconds>(now - secondStart);
-
-		if (elapsed.count() >= 1000000) {
-			int fps = frameCount / (elapsed.count() / 1000000.0);
-			cout << "FPS : " << fps << std::endl;
-
-			
-			frameCount = 0;
-			secondStart = now;
-		}
-
-
-		// Mise à jour de l'affichage
 		SDL_RenderPresent(renderer);
 
 	}
@@ -252,9 +240,19 @@ void Window::Home() {
 void Window::Play() {
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, textureList["playTexture"], NULL, NULL);
+	gameObjectList["lucyText"].PrintImage(textureList["introLucyTexture"]);
+	if (indexAnimationLucy > 2000 && indexAnimationLucy < 4000) {
+		gameObjectList["lucy"].posX = screenWidth/100;
+	}
+	else if (indexAnimationLucy > 4000) {
+		indexAnimationLucy = 0;
+	}
+	else {
+		gameObjectList["lucy"].posX = 0;
+		
+	}
+	indexAnimationLucy += 10;
 	gameObjectList["lucy"].PrintImage(textureList["lucyTexture"]);
-
-
 
 	//Grid* grid = new Grid(size, renderer, screenHeight, screenWidth);
 	grid->Print();

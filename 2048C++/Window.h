@@ -52,6 +52,7 @@ public:
 	string choiceMenu[3] = { "Level1","Level2","Quit" };
 	string page = "home";
 	int size = 0;
+	int indexAnimationLucy = 0;
 	int screenWidth, screenHeight;
 	bool quit = false;
 	Window();
