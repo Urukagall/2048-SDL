@@ -54,7 +54,7 @@ Window::Window() {
 
 
 	// Chargement de la police
-	font = TTF_OpenFont("Font/cyberpunk.ttf", 128); // Remplacez par le chemin de votre police
+	font = TTF_OpenFont("Font/cyberpunk.ttf", 256); // Remplacez par le chemin de votre police
 	if (!font) {
 		std::cerr << "Échec du chargement de la police : " << TTF_GetError() << std::endl;
 	}
@@ -151,9 +151,22 @@ Window::Window() {
 		}
 
 		endTimer = chrono::high_resolution_clock::now();
+		chrono::microseconds duration = chrono::duration_cast<chrono::microseconds>(endTimer - startTimer);
 
-		std::chrono::microseconds duration = std::chrono::duration_cast<std::chrono::microseconds>(endTimer - startTimer);
-		std::cout << "Durée de la boucle : " << duration.count() << " microseconds" << std::endl;
+
+		frameCount++;
+		now = chrono::high_resolution_clock::now();
+		chrono::microseconds elapsed = chrono::duration_cast<chrono::microseconds>(now - secondStart);
+
+		if (elapsed.count() >= 1000000) {
+			int fps = frameCount / (elapsed.count() / 1000000.0);
+			cout << "FPS : " << fps << std::endl;
+
+			
+			frameCount = 0;
+			secondStart = now;
+		}
+
 
 		// Mise à jour de l'affichage
 		SDL_RenderPresent(renderer);

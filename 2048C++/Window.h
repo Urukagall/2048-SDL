@@ -40,12 +40,15 @@ public:
 	map<string, SDL_Texture*> textureList;
 	map<string, GameObject> gameObjectList;
 	bool arrowKeyWasPressed[4] = { false, false, false, false };
-	bool defeat = true;
+	bool defeat = false;
 	bool win = false;
 	int choice = 0;
 	int valueWin = 2048;
 	chrono::high_resolution_clock::time_point startTimer;
 	chrono::high_resolution_clock::time_point endTimer;
+	chrono::high_resolution_clock::time_point secondStart = chrono::high_resolution_clock::now();
+	chrono::high_resolution_clock::time_point now;
+	int frameCount = 0;
 	string choiceMenu[3] = { "Level1","Level2","Quit" };
 	string page = "home";
 	int size = 0;
