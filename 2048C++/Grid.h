@@ -10,6 +10,7 @@ class Grid
 public:
 
 	int size;
+	int score;
 	vector<vector<Box>> grid;
 	vector<vector<int>> color;
 	vector<int> numberValue;

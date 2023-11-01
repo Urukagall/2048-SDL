@@ -73,7 +73,7 @@ void Grid::Print() {
 			{
 				string strValue = to_string(grid[i][j].value);
 				const char* charValue = strValue.c_str();
-				SDL_Surface* textValueSurface = TTF_RenderText_Solid(font, charValue, {238, 229, 0});
+				SDL_Surface* textValueSurface = TTF_RenderText_Blended(font, charValue, {238, 229, 0});
 				SDL_Texture* textHomeTexture1 = SDL_CreateTextureFromSurface(renderer, textValueSurface);
 				SDL_FreeSurface(textValueSurface);
 				grid[i][j].PrintText(textHomeTexture1);
@@ -155,6 +155,7 @@ bool Grid::MoveHorizontal(string move) {
 			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par la gauche
 			for (int j = 0; j < size - 1; j++) {
 				if (row[j] == row[j + 1] && row[j] != 0) {
+					score += row[j] * 2;
 					row[j] *= 2;
 					row[j + 1] = 0;
 				}
@@ -168,6 +169,7 @@ bool Grid::MoveHorizontal(string move) {
 			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par la droite
 			for (int j = size - 1; j > 0; j--) {
 				if (row[j] == row[j - 1] && row[j] != 0) {
+					score += row[j] * 2;
 					row[j] *= 2;
 					row[j - 1] = 0;
 				}
@@ -243,6 +245,7 @@ bool Grid::MoveVertical(string move) {
 			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par le haut
 			for (int j = 0; j < size - 1; j++) {
 				if (column[j] == column[j + 1] && column[j] != 0) {
+					score += column[j] * 2;
 					column[j] *= 2;
 					column[j + 1] = 0;
 				}
@@ -256,6 +259,7 @@ bool Grid::MoveVertical(string move) {
 			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par le bas
 			for (int j = size - 1; j >= 1; j--) {
 				if (column[j] == column[j - 1] && column[j] != 0) {
+					score += column[j] * 2;
 					column[j] *= 2;
 					column[j - 1] = 0;
 				}

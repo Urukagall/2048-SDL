@@ -10,7 +10,6 @@
 #include <string>
 #include <windows.h>
 #include <time.h>
-#include <chrono>
 
 
 #include "Box.h"
@@ -55,10 +54,11 @@ Window::Window() {
 
 
 	// Chargement de la police
-	font = TTF_OpenFont("Font/cyberpunk.ttf", 256); // Remplacez par le chemin de votre police
+	font = TTF_OpenFont("Font/cyberpunk.ttf", 512); // Remplacez par le chemin de votre police
 	if (!font) {
 		std::cerr << "Échec du chargement de la police : " << TTF_GetError() << std::endl;
 	}
+
 
 	// Chargement des fonds
 	surfaceList["homeSurface"] = IMG_Load("Image/Home.png");
@@ -70,13 +70,14 @@ Window::Window() {
 	surfaceList["winLucySurface"] = IMG_Load("Image/WinLucy.png");
 	surfaceList["loseLucySurface"] = IMG_Load("Image/LoseLucy.png");
 	// Création d'une surface de texte
-	surfaceList["textHomeSurface1"] = TTF_RenderText_Solid(font, "LEVEL     4X4 ", { 238, 229, 0 });
-	surfaceList["textHomeSurface2"] = TTF_RenderText_Solid(font, "LEVEL     8X8 ", { 238, 229, 0 });
-	surfaceList["textHomeSurface3"] = TTF_RenderText_Solid(font, "Quitter", { 238, 229, 0 });
-	surfaceList["textTitleSurface"] = TTF_RenderText_Solid(font, "Cyberpunk 2048", { 238, 229, 0 });
-	surfaceList["textWinSurface"] = TTF_RenderText_Solid(font, "Vous vous etes enfuis avec Lucy !!!", { 238, 229, 0 });
-	surfaceList["textLoseSurface"] = TTF_RenderText_Solid(font, "Vous n'avez pas reussi a vous enfuir ", { 238, 229, 0 });
-	surfaceList["textLose2Surface"] = TTF_RenderText_Solid(font, "la MAXTAC vous a rattrape !!!", { 238, 229, 0 });
+	surfaceList["textHomeSurface1"] = TTF_RenderText_Blended(font, "LEVEL     4X4 ", { 238, 229, 0 });
+	surfaceList["textHomeSurface2"] = TTF_RenderText_Blended(font, "LEVEL     8X8 ", { 238, 229, 0 });
+	surfaceList["textHomeSurface3"] = TTF_RenderText_Blended(font, "Quitter", { 238, 229, 0 });
+	surfaceList["textTitleSurface"] = TTF_RenderText_Blended(font, "Cyberpunk 2048", { 238, 229, 0 });
+	surfaceList["textWinSurface"] = TTF_RenderText_Blended(font, "Vous vous etes enfuis avec Lucy !!!", { 238, 229, 0 });
+	surfaceList["textLoseSurface"] = TTF_RenderText_Blended(font, "Vous n'avez pas reussi a vous enfuir ", { 238, 229, 0 });
+	surfaceList["textLose2Surface"] = TTF_RenderText_Blended(font, "la MAXTAC vous a rattrape !!!", { 238, 229, 0 });
+	surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, "Score: 0", {238, 229, 0});
 	// Chargement des images
 	surfaceList["lucySurface"] = IMG_Load("Image/Lucy.png");
 
@@ -99,6 +100,7 @@ Window::Window() {
 	textureList["textWinTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textWinSurface"]);
 	textureList["textLoseTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textLoseSurface"]);
 	textureList["textLose2Texture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textLose2Surface"]);
+	textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
 	// Libération de la surface
 	for (const auto& pair : surfaceList) {
 		SDL_FreeSurface(pair.second);
@@ -114,6 +116,7 @@ Window::Window() {
 
 	GameObject lucy(0, screenHeight / 2, screenWidth / 5, screenHeight / 2, 6, 36, 47, 0, renderer);
 	GameObject lucyText(-500, 0, screenWidth, screenHeight , 6, 36, 47, 0, renderer);
+	GameObject scoreText(0, 0, screenWidth / 5, screenHeight / 8, 6, 36, 47, 0, renderer);
 
 	gameObjectList["title"] = title;
 	gameObjectList["endTitle"] = endTitle;
@@ -123,6 +126,7 @@ Window::Window() {
 	gameObjectList["choice3"] = choice3;
 	gameObjectList["lucy"] = lucy;
 	gameObjectList["lucyText"] = lucyText;
+	gameObjectList["scoreText"] = scoreText;
 
 	this->renderer = renderer;
 	
@@ -140,6 +144,8 @@ Window::Window() {
 	Mix_PlayMusic(musicList["musicHome"], -1);
 	startTime = SDL_GetTicks();
 	while (!quit) {
+		startTimerFPS = SDL_GetTicks();
+
 		currentTime = SDL_GetTicks();
 		deltaTime = currentTime - startTime;
 
@@ -157,7 +163,19 @@ Window::Window() {
 		else {
 			Win();
 		}
+		endTimerFPS = SDL_GetTicks();
 
+		frameCount++;
+
+		deltaTimeFPS = endTimerFPS - secondStartTimerFPS;
+
+		if (deltaTimeFPS >= 1000)
+		{
+			fps = frameCount / (deltaTimeFPS / 1000);
+			cout << "FPS : " << fps << endl;
+			frameCount = 0;
+			secondStartTimerFPS = endTimerFPS;
+		}
 
 		SDL_RenderPresent(renderer);
 
@@ -245,7 +263,7 @@ void Window::Home() {
 void Window::Play() {
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, textureList["playTexture"], NULL, NULL);
-
+	previousScore = grid -> score;
 
 	grid->Print();
 	while (SDL_PollEvent(&event) && !win && !defeat) {
@@ -284,6 +302,7 @@ void Window::Play() {
 				// La touche Échap a été enfoncée
 				page = "home";
 				Mix_PlayMusic(musicList["musicHome"], -1);
+				printTextIntro = true;
 			}
 
 		}
@@ -291,20 +310,40 @@ void Window::Play() {
 			// Réinitialisez la variable lorsque la touche est relâchée
 			if (event.key.keysym.sym == SDLK_UP) {
 				arrowKeyWasPressed[0] = false;
+				cout << grid->score << endl;
 			}
 			else if (event.key.keysym.sym == SDLK_DOWN) {
 				arrowKeyWasPressed[1] = false;
+				cout << grid->score << endl;
 			}
 			else if (event.key.keysym.sym == SDLK_LEFT) {
 				arrowKeyWasPressed[2] = false;
+				cout << grid->score << endl;
 			}
 			else if (event.key.keysym.sym == SDLK_RIGHT) {
 				arrowKeyWasPressed[3] = false;
+				cout << grid->score << endl;
 			}
 		}
 	}
 	grid->Defeat(defeat);
 	grid->Win(win, 64);
+
+
+	if (previousScore != grid->score)
+	{
+		//SDL_FreeSurface(surfaceList["textScoreSurface"]);
+		//SDL_DestroyTexture(textureList["textScoreTexture"]);
+
+		previousScore = grid->score;
+		string scoreText = "Score: " + to_string(grid->score);
+
+		surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, scoreText.c_str(), { 238, 229, 0 });
+		textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
+
+	}
+
+	gameObjectList["scoreText"].PrintText(textureList["textScoreTexture"]);
 
 	gameObjectList["lucy"].PrintImage(textureList["lucyTexture"]);
 	

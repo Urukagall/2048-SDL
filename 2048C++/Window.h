@@ -6,7 +6,6 @@
 #include <string>
 #include <windows.h>
 #include <time.h>
-#include <chrono>
 
 #include "Box.h"
 #include "Grid.h"
@@ -44,17 +43,23 @@ public:
 	bool win = false;
 	int choice = 0;
 	int valueWin = 2048;
-	chrono::high_resolution_clock::time_point startTimer;
-	chrono::high_resolution_clock::time_point endTimer;
-	chrono::high_resolution_clock::time_point secondStart = chrono::high_resolution_clock::now();
-	chrono::high_resolution_clock::time_point now;
 	int frameCount = 0;
 	string choiceMenu[3] = { "Level1","Level2","Quit" };
 	string page = "home";
 	int size = 0;
+	int previousScore = 0;
+
 	int startTime;
-	int currentTime ;
+	int currentTime;
 	int deltaTime;
+
+	int startTimerFPS;
+	int secondStartTimerFPS = SDL_GetTicks();
+	int endTimerFPS;
+	int deltaTimeFPS;
+	int framecount = 0;
+	int fps;
+
 	int indexAnimationLucy = 0;
 	int indexText=0;
 	bool printTextIntro =true;
