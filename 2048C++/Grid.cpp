@@ -73,10 +73,11 @@ void Grid::Print() {
 			{
 				string strValue = to_string(grid[i][j].value);
 				const char* charValue = strValue.c_str();
-				TTF_Font* font = TTF_OpenFont("Font/cyberpunk.ttf", 128);
 				SDL_Surface* textValueSurface = TTF_RenderText_Solid(font, charValue, {238, 229, 0});
 				SDL_Texture* textHomeTexture1 = SDL_CreateTextureFromSurface(renderer, textValueSurface);
+				SDL_FreeSurface(textValueSurface);
 				grid[i][j].PrintText(textHomeTexture1);
+				SDL_DestroyTexture(textHomeTexture1);
 			}
 		}
 	}
@@ -303,6 +304,18 @@ bool Grid::MoveVertical(string move) {
 
 }
 
+
+bool Grid::FindNumber(int number) {
+	int zero = 0;
+	for (int i = 0; i < size; i++) {
+		for (int y = 0; y < size; y++) {
+			if (grid[i][y].value == number) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 void Grid::Defeat(bool& ifDefeat) {
 	int zero = 0;

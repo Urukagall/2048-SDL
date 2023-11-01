@@ -66,9 +66,9 @@ Window::Window() {
 	surfaceList["loseSurface"] = IMG_Load("Image/Lose.png");
 	surfaceList["winSurface"] = IMG_Load("Image/Win.png");
 	surfaceList["introLucySurface"] = IMG_Load("Image/IntroLucy.png");
-	surfaceList["MidLucySurface"] = IMG_Load("Image/MidLucy.png");
-	surfaceList["WinLucySurface"] = IMG_Load("Image/WinLucy.png");
-	surfaceList["LoseLucySurface"] = IMG_Load("Image/LoseLucy.png");
+	surfaceList["midLucySurface"] = IMG_Load("Image/MidLucy.png");
+	surfaceList["winLucySurface"] = IMG_Load("Image/WinLucy.png");
+	surfaceList["loseLucySurface"] = IMG_Load("Image/LoseLucy.png");
 	// Création d'une surface de texte
 	surfaceList["textHomeSurface1"] = TTF_RenderText_Solid(font, "LEVEL     4X4 ", { 238, 229, 0 });
 	surfaceList["textHomeSurface2"] = TTF_RenderText_Solid(font, "LEVEL     8X8 ", { 238, 229, 0 });
@@ -88,9 +88,9 @@ Window::Window() {
 	textureList["winTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["winSurface"]);
 	textureList["lucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["lucySurface"]);
 	textureList["introLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["introLucySurface"]);
-	textureList["MidLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["MidLucySurface"]);
-	textureList["WinLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["WinLucySurface"]);
-	textureList["LoseLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["LoseLucySurface"]);
+	textureList["midLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["midLucySurface"]);
+	textureList["winLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["winLucySurface"]);
+	textureList["loseLucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["loseLucySurface"]);
 	// Création d'une texture à partir de la surface de texte
 	textureList["textHomeTexture1"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textHomeSurface1"]);
 	textureList["textHomeTexture2"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textHomeSurface2"]);
@@ -137,12 +137,12 @@ Window::Window() {
 
 	SDL_RenderClear(renderer);
 	
-
+	Mix_PlayMusic(musicList["musicHome"], -1);
 	while (!quit) {
 
 
 		if (page == "home") {
-			Mix_PlayMusic(musicList["musicHome"], -1);
+
 			Home();
 		}
 		else if (page == "play") {
@@ -237,26 +237,16 @@ void Window::Home() {
 	gameObjectList["title"].PrintText(textureList["textTitleTexture"]);
 }
 
+
+
+
 void Window::Play() {
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, textureList["playTexture"], NULL, NULL);
-	gameObjectList["lucyText"].PrintImage(textureList["introLucyTexture"]);
-	if (indexAnimationLucy > 2000 && indexAnimationLucy < 4000) {
-		gameObjectList["lucy"].posX = screenWidth/100;
-	}
-	else if (indexAnimationLucy > 4000) {
-		indexAnimationLucy = 0;
-	}
-	else {
-		gameObjectList["lucy"].posX = 0;
-		
-	}
-	indexAnimationLucy += 10;
-	gameObjectList["lucy"].PrintImage(textureList["lucyTexture"]);
 
-	//Grid* grid = new Grid(size, renderer, screenHeight, screenWidth);
+
 	grid->Print();
-	while (SDL_PollEvent(&event)) {
+	while (SDL_PollEvent(&event) && !win && !defeat) {
 		if (event.type == SDL_QUIT) {
 			quit = true;
 		}
@@ -313,14 +303,78 @@ void Window::Play() {
 	}
 	grid->Defeat(defeat);
 	grid->Win(win, valueWin);
+
+	gameObjectList["lucy"].PrintImage(textureList["lucyTexture"]);
+	
+	if (indexAnimationLucy > 200 && indexAnimationLucy < 1200) {
+		gameObjectList["lucy"].posX = screenWidth / 500;
+	}
+	else if (indexAnimationLucy > 400) {
+		indexAnimationLucy = 0;
+	}
+	else {
+		gameObjectList["lucy"].posX = 0;
+
+	}
+	indexAnimationLucy += 1;
+
+
+	//Text de Lucy
 	if (win) {
-		page = "Win";
-		Mix_PlayMusic(musicList["musicWin"], -1);
+		if (indexText < 8000) {
+			gameObjectList["lucyText"].PrintImage(textureList["winLucyTexture"]);
+		}
+		else {
+			indexText = 0;
+			page = "Win";
+			Mix_PlayMusic(musicList["musicLose"], -1);
+			printTextIntro = true;
+		}
+		indexText += 1;
+
+
 	}
 	else if (defeat) {
-		page = "Lose";
-		Mix_PlayMusic(musicList["musicLose"], -1);
+		if (indexText < 8000) {
+			gameObjectList["lucyText"].PrintImage(textureList["loseLucyTexture"]);
+		}
+		else {
+			indexText = 0;
+			page = "Lose";
+			Mix_PlayMusic(musicList["musicWin"], -1);
+			printTextIntro = true;
+		}
+		indexText += 1;
 	}
+	else {
+		if (printTextIntro) {
+			if (indexText < 10000) {
+				gameObjectList["lucyText"].PrintImage(textureList["introLucyTexture"]);
+			}
+			else {
+				printTextIntro = false;
+				indexText = 0;
+			}
+			indexText += 1;
+		}
+		else {
+			if (grid->FindNumber(1024)) {
+				if (indexText < 10000) {
+					gameObjectList["lucyText"].PrintImage(textureList["midLucyTexture"]);
+				}
+				else {
+					indexText = 0;
+				}
+				indexText += 1;
+			}
+		}
+	}
+
+
+
+
+
+
 }
 
 

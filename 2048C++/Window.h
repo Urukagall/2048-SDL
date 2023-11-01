@@ -53,6 +53,10 @@ public:
 	string page = "home";
 	int size = 0;
 	int indexAnimationLucy = 0;
+	int indexText=0;
+	bool printTextIntro =true;
+	bool printTextMid= false;
+	bool printTextEnd = false;
 	int screenWidth, screenHeight;
 	bool quit = false;
 	Window();
