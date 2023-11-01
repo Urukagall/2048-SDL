@@ -138,8 +138,10 @@ Window::Window() {
 	SDL_RenderClear(renderer);
 	
 	Mix_PlayMusic(musicList["musicHome"], -1);
+	startTime = SDL_GetTicks();
 	while (!quit) {
-
+		currentTime = SDL_GetTicks();
+		deltaTime = currentTime - startTime;
 
 		if (page == "home") {
 
@@ -302,21 +304,20 @@ void Window::Play() {
 		}
 	}
 	grid->Defeat(defeat);
-	grid->Win(win, valueWin);
+	grid->Win(win, 64);
 
 	gameObjectList["lucy"].PrintImage(textureList["lucyTexture"]);
 	
-	if (indexAnimationLucy > 200 && indexAnimationLucy < 1200) {
+	if (deltaTime > 200 && deltaTime < 400) {
 		gameObjectList["lucy"].posX = screenWidth / 500;
 	}
-	else if (indexAnimationLucy > 400) {
-		indexAnimationLucy = 0;
+	else if (deltaTime > 400) {
+		startTime = currentTime;
 	}
 	else {
-		gameObjectList["lucy"].posX = 0;
+		gameObjectList["lucy"].posX =0;
 
 	}
-	indexAnimationLucy += 1;
 
 
 	//Text de Lucy
@@ -327,7 +328,7 @@ void Window::Play() {
 		else {
 			indexText = 0;
 			page = "Win";
-			Mix_PlayMusic(musicList["musicLose"], -1);
+			Mix_PlayMusic(musicList["musicWin"], -1);
 			printTextIntro = true;
 		}
 		indexText += 1;
@@ -341,31 +342,34 @@ void Window::Play() {
 		else {
 			indexText = 0;
 			page = "Lose";
-			Mix_PlayMusic(musicList["musicWin"], -1);
+			Mix_PlayMusic(musicList["musicLose"], -1);
 			printTextIntro = true;
 		}
 		indexText += 1;
 	}
 	else {
 		if (printTextIntro) {
-			if (indexText < 10000) {
+			if (indexText < 8000) {
 				gameObjectList["lucyText"].PrintImage(textureList["introLucyTexture"]);
 			}
 			else {
 				printTextIntro = false;
+				printTextMid = true;
 				indexText = 0;
 			}
 			indexText += 1;
 		}
-		else {
-			if (grid->FindNumber(1024)) {
-				if (indexText < 10000) {
+		else if(printTextMid) {
+			if (grid->FindNumber(32)) {
+				if (indexText < 8000) {
 					gameObjectList["lucyText"].PrintImage(textureList["midLucyTexture"]);
+					indexText += 1;
 				}
 				else {
+					printTextMid = false;
 					indexText = 0;
 				}
-				indexText += 1;
+				
 			}
 		}
 	}

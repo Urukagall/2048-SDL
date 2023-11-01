@@ -52,11 +52,13 @@ public:
 	string choiceMenu[3] = { "Level1","Level2","Quit" };
 	string page = "home";
 	int size = 0;
+	int startTime;
+	int currentTime ;
+	int deltaTime;
 	int indexAnimationLucy = 0;
 	int indexText=0;
 	bool printTextIntro =true;
 	bool printTextMid= false;
-	bool printTextEnd = false;
 	int screenWidth, screenHeight;
 	bool quit = false;
 	Window();
