@@ -8,6 +8,7 @@
 #include "SDL_ttf.h"
 using namespace std;
 
+//constructeur pour les test
 Grid::Grid(string sStr, int size)
 {
 	this->size = size;
@@ -16,14 +17,13 @@ Grid::Grid(string sStr, int size)
 	string letter;
 	for (size_t i = 0; i < size * size; i++)
 	{
-		//grid[i / size][i % size] = Box();
 		letter = sStr[i];
 		number = stoi(letter);
 		grid[i / size][i % size].value = number;
 	}
 }
 
-
+//constructeur principale
 Grid::Grid(int size, SDL_Renderer* renderer ,int screenHeight, int screenWidth)
 {
 	this->renderer = renderer;
@@ -49,12 +49,13 @@ Grid::Grid(int size, SDL_Renderer* renderer ,int screenHeight, int screenWidth)
 	}
 }
 
+//destructeur
 Grid::~Grid()
 {
 
 }
 
-
+//Méthode pour afficher la grille sur SDL en changeant la couleur en fonction de la valeur de la box
 void Grid::Print() {
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
@@ -84,7 +85,7 @@ void Grid::Print() {
 }
 
 
-
+//Méthode pour générer des nombre aléatoire entre 1 et randomNumber
 int Grid::GenerateRandomNumber(int randomNumber) {
 	random_device rd;
 	mt19937 generator(rd());
@@ -93,7 +94,7 @@ int Grid::GenerateRandomNumber(int randomNumber) {
 	return distribution(generator);
 }
 
-//méthode place un nombre dans la grille
+//méthode qui place un nombre aléatoirement dans la grille
 void Grid::PlaceNumber() {
 	vector<Box> empty;
 	int numberZero = 0;
@@ -205,7 +206,7 @@ bool Grid::MoveHorizontal(string move, bool test) {
 
 		}
 
-		//rajoute les valeurs dans la grille
+		//rajoute les valeurs dans la grille si ce n'est pas un test (test pour savoir quand la grille est pleine si on pet encore jouer)
 		if (!test){
 			for (int j = 0; j < size; j++) {
 				grid[i][j].value = newRow[j];
@@ -306,7 +307,7 @@ bool Grid::MoveVertical(string move, bool test) {
 				newColumn.insert(newColumn.begin(), 0);
 			}
 		}
-		//rajoute les valeurs dans la grille
+		//rajoute les valeurs dans la grille si ce n'est pas un test (test pour savoir quand la grille est pleine si on pet encore jouer)
 		if (!test){
 			for (int j = 0; j < size; j++) {
 				grid[j][i].value = newColumn[j];
@@ -337,7 +338,7 @@ bool Grid::MoveVertical(string move, bool test) {
 
 }
 
-
+//Méthode pour trouver une valeur dans le tableau
 bool Grid::FindNumber(int number) {
 	int zero = 0;
 	for (int i = 0; i < size; i++) {
@@ -350,6 +351,7 @@ bool Grid::FindNumber(int number) {
 	return false;
 }
 
+//Méthode qui vérifie si on a perdu
 void Grid::Defeat(bool& ifDefeat) {	
 	int zero = 0;
 	for (int i = 0; i < size; i++) {
@@ -366,6 +368,7 @@ void Grid::Defeat(bool& ifDefeat) {
 		}
 	}
 }
+//Méthode qui vérifie si on a gagner
 void Grid::Win(bool& win, int value) {
 	for (int i = 0; i < size; i++) {
 		for (int y = 0; y < size; y++) {
@@ -378,7 +381,7 @@ void Grid::Win(bool& win, int value) {
 
 }
 
-
+//Méthode qui compare le résultat  par la valeur attendu
 bool Grid::CompareTest(string sStr) {
 	int number;
 	string letter;

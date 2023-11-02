@@ -54,7 +54,7 @@ Window::Window() {
 
 
 	// Chargement de la police
-	font = TTF_OpenFont("Font/cyberpunk.ttf", 512); // Remplacez par le chemin de votre police
+	font = TTF_OpenFont("Font/cyberpunk.ttf", 512);
 	if (!font) {
 		std::cerr << "Échec du chargement de la police : " << TTF_GetError() << std::endl;
 	}
@@ -70,14 +70,14 @@ Window::Window() {
 	surfaceList["winLucySurface"] = IMG_Load("Image/WinLucy.png");
 	surfaceList["loseLucySurface"] = IMG_Load("Image/LoseLucy.png");
 	// Création d'une surface de texte
-	surfaceList["textHomeSurface1"] = TTF_RenderText_Blended(font, "LEVEL     4X4 ", { 238, 229, 0 });
-	surfaceList["textHomeSurface2"] = TTF_RenderText_Blended(font, "LEVEL     8X8 ", { 238, 229, 0 });
-	surfaceList["textHomeSurface3"] = TTF_RenderText_Blended(font, "Quitter", { 238, 229, 0 });
-	surfaceList["textTitleSurface"] = TTF_RenderText_Blended(font, "Cyberpounk 2048", { 238, 229, 0 });
-	surfaceList["textWinSurface"] = TTF_RenderText_Blended(font, "Vous vous etes enfuis avec Lucy !!!", { 238, 229, 0 });
-	surfaceList["textLoseSurface"] = TTF_RenderText_Blended(font, "Vous n'avez pas reussi a vous enfuir ", { 238, 229, 0 });
-	surfaceList["textLose2Surface"] = TTF_RenderText_Blended(font, "la MAXTAC vous a rattrape !!!", { 238, 229, 0 });
-	surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, "Score: 0", {238, 229, 0});
+	surfaceList["textHomeSurface1"] = TTF_RenderUTF8_Blended(font, "LEVEL     4X4 ", { 238, 229, 0 });
+	surfaceList["textHomeSurface2"] = TTF_RenderUTF8_Blended(font, "LEVEL     8X8 ", { 238, 229, 0 });
+	surfaceList["textHomeSurface3"] = TTF_RenderUTF8_Blended(font, "Quitter", { 238, 229, 0 });
+	surfaceList["textTitleSurface"] = TTF_RenderUTF8_Blended(font, "Cyberpounk 2048", { 238, 229, 0 });
+	surfaceList["textWinSurface"] = TTF_RenderUTF8_Blended(font, "Vous vous etes enfuis avec Lucy !!!", { 238, 229, 0 });
+	surfaceList["textLoseSurface"] = TTF_RenderUTF8_Blended(font, "Vous n'avez pas reussi a vous enfuir ", { 238, 229, 0 });
+	surfaceList["textLose2Surface"] = TTF_RenderUTF8_Blended(font, "la MAXTAC vous a rattrape !!!", { 238, 229, 0 });
+	surfaceList["textScoreSurface"] = TTF_RenderUTF8_Blended(font, "Score: 0", {238, 229, 0});
 	// Chargement des images
 	surfaceList["lucySurface"] = IMG_Load("Image/Lucy.png");
 
@@ -106,7 +106,7 @@ Window::Window() {
 		SDL_FreeSurface(pair.second);
 	}
 
-	
+	//Création des GameObject
 	GameObject title((screenWidth / 20) * 4, (screenHeight / 10), screenWidth, screenHeight / 5, 6, 36, 47, 0, renderer);
 	GameObject endTitle(0, screenHeight/10 , screenWidth, screenHeight/4, 6, 36, 47, 0, renderer);
 	GameObject end2Title(screenWidth/4, screenHeight / 3, screenWidth/2, screenHeight / 8, 6, 36, 47, 0, renderer);
@@ -118,7 +118,7 @@ Window::Window() {
 	GameObject lucyText(-500, 0, screenWidth, screenHeight , 6, 36, 47, 0, renderer);
 	GameObject scoreText(0, 0, screenWidth / 5, screenHeight / 8, 6, 36, 47, 0, renderer);
 
-
+	//Ajout des gameobject dans la liste
 	gameObjectList["title"] = title;
 	gameObjectList["endTitle"] = endTitle;
 	gameObjectList["end2Title"] = end2Title;
@@ -143,13 +143,17 @@ Window::Window() {
 	SDL_RenderClear(renderer);
 	
 	Mix_PlayMusic(musicList["musicHome"], -1);
+	//création et gestion des fps avec la boucle de jeu
 	startTime = SDL_GetTicks();
+
+	//Boucle de jeu
 	while (!quit) {
 		startTimerFPS = SDL_GetTicks();
 
 		currentTime = SDL_GetTicks();
 		deltaTime = currentTime - startTime;
 
+		//Appel les méthodes des pages en fonction de celles-ci
 		if (page == "home") {
 
 			Home();
@@ -164,12 +168,11 @@ Window::Window() {
 		else {
 			Win();
 		}
+
 		endTimerFPS = SDL_GetTicks();
-
 		frameCount++;
-
 		deltaTimeFPS = endTimerFPS - secondStartTimerFPS;
-
+		//Calcul des FPS
 		if (deltaTimeFPS >= 1000)
 		{
 			fps = frameCount / (deltaTimeFPS / 1000);
@@ -180,14 +183,16 @@ Window::Window() {
 
 		SDL_RenderPresent(renderer);
 
+		//limite les fps en fonction de la variable targetFps
 		SDL_Delay((1000 / targetFps) - (endTimerFPS - startTimerFPS));
 
 	}
 	Close();
 }
 
-
+//Affichage de la page Home
 void Window::Home() {
+	//Detection des touches
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			quit = true;
@@ -234,6 +239,7 @@ void Window::Home() {
 		}
 
 	}
+	//Affichage du rendu
 	SDL_RenderCopy(renderer, textureList["homeTexture"], NULL, NULL);
 	gameObjectList["choice1"].PrintSDL();
 	gameObjectList["choice2"].PrintSDL();
@@ -262,13 +268,15 @@ void Window::Home() {
 
 
 
-
+//Affichage de la page de jeu
 void Window::Play() {
+	//Affichage du rendu
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, textureList["playTexture"], NULL, NULL);
 	previousScore = grid -> score;
 
 	grid->Print();
+	//Detection des touches
 	while (SDL_PollEvent(&event) && !win && !defeat) {
 		if (event.type == SDL_QUIT) {
 			quit = true;
@@ -301,8 +309,15 @@ void Window::Play() {
 				}
 
 			}
+			//AMOGUS
+			else if (event.key.keysym.sym == SDLK_a) {
+				surfaceList["lucySurface"] = IMG_Load("Image/amongus.png");
+				textureList["lucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["lucySurface"]);
+			}
 			else if (event.key.keysym.sym == SDLK_ESCAPE) {
 				// La touche Échap a été enfoncée
+				surfaceList["lucySurface"] = IMG_Load("Image/lucy.png");
+				textureList["lucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["lucySurface"]);
 				page = "home";
 				Mix_PlayMusic(musicList["musicHome"], -1);
 				printTextIntro = true;
@@ -311,7 +326,7 @@ void Window::Play() {
 				previousScore = grid->score;
 				scoreText = "Score: " + to_string(grid->score);
 
-				surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, scoreText.c_str(), { 238, 229, 0 });
+				surfaceList["textScoreSurface"] = TTF_RenderUTF8_Blended(font, scoreText.c_str(), { 238, 229, 0 });
 				textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
 			}
 
@@ -335,21 +350,23 @@ void Window::Play() {
 	grid->Defeat(defeat);
 	grid->Win(win, valueWin);
 
-
+	//Update le text de score si le score change
 	if (previousScore != grid->score)
 	{
 
 		previousScore = grid->score;
 		scoreText = "Score: " + to_string(grid->score);
 
-		surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, scoreText.c_str(), { 238, 229, 0 });
+		surfaceList["textScoreSurface"] = TTF_RenderUTF8_Blended(font, scoreText.c_str(), { 238, 229, 0 });
 		textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
 		SDL_FreeSurface(surfaceList["textScoreSurface"]);
 	}
 
+	//Affiche l'image de lucy et le texte de score
 	gameObjectList["scoreText"].PrintText(textureList["textScoreTexture"]);
 	gameObjectList["lucy"].PrintImage(textureList["lucyTexture"]);
 	
+	//animation de lucy
 	if (deltaTime > 200 && deltaTime < 400) {
 		gameObjectList["lucy"].posX = screenWidth / 500;
 	}
@@ -424,11 +441,13 @@ void Window::Play() {
 }
 
 
-
+//Affichage de la page de défaite
 void Window::Lose() {
+	//Affichage du rendu
 	SDL_RenderCopy(renderer, textureList["loseTexture"], NULL, NULL);
 	gameObjectList["endTitle"].PrintText(textureList["textLoseTexture"]);
 	gameObjectList["end2Title"].PrintText(textureList["textLose2Texture"]);
+	//Detection des touches
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			quit = true;
@@ -439,11 +458,15 @@ void Window::Lose() {
 			previousScore = grid->score;
 			scoreText = "Score: " + to_string(grid->score);
 
-			surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, scoreText.c_str(), { 238, 229, 0 });
+			surfaceList["textScoreSurface"] = TTF_RenderUTF8_Blended(font, scoreText.c_str(), { 238, 229, 0 });
 			textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
 			SDL_FreeSurface(surfaceList["textScoreSurface"]);
 			page = "home";
 			Mix_PlayMusic(musicList["musicHome"], -1);
+
+			surfaceList["lucySurface"] = IMG_Load("Image/amongus.png");
+			textureList["lucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["lucySurface"]);
+
 			defeat = false;
 		}
 
@@ -451,10 +474,13 @@ void Window::Lose() {
 	}
 }
 
+//Affichage de la page de victoire
 void Window::Win() {
+	//Affichage du rendu
 	SDL_RenderCopy(renderer, textureList["winTexture"], NULL, NULL);
 	gameObjectList["end2Title"].PrintText(textureList["textScoreTexture"]);
 	gameObjectList["endTitle"].PrintText(textureList["textWinTexture"]);
+	//Detection des touches
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
 			quit = true;
@@ -465,17 +491,22 @@ void Window::Win() {
 			previousScore = grid->score;
 			scoreText = "Score: " + to_string(grid->score);
 
-			surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, scoreText.c_str(), { 238, 229, 0 });
+			surfaceList["textScoreSurface"] = TTF_RenderUTF8_Blended(font, scoreText.c_str(), { 238, 229, 0 });
 			textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
 			SDL_FreeSurface(surfaceList["textScoreSurface"]);
 			page = "home";
 			Mix_PlayMusic(musicList["musicHome"], -1);
+
+			surfaceList["lucySurface"] = IMG_Load("Image/amongus.png");
+			textureList["lucyTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["lucySurface"]);
+
 			win = false;
 		}
 	}
 
 }
 
+//Méthode qui détruit tout et ferme la fenêtre de jeu
 void Window::Close() {
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
