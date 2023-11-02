@@ -48,10 +48,12 @@ public:
 	string page = "home";
 	int size = 0;
 	int previousScore = 0;
+	string scoreText;
 
 	int startTime;
 	int currentTime;
 	int deltaTime;
+
 
 	int startTimerFPS;
 	int secondStartTimerFPS = SDL_GetTicks();
@@ -59,6 +61,7 @@ public:
 	int deltaTimeFPS;
 	int framecount = 0;
 	int fps;
+	int targetFps = 60;
 
 	int indexAnimationLucy = 0;
 	int indexText=0;

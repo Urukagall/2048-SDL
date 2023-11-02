@@ -73,7 +73,7 @@ Window::Window() {
 	surfaceList["textHomeSurface1"] = TTF_RenderText_Blended(font, "LEVEL     4X4 ", { 238, 229, 0 });
 	surfaceList["textHomeSurface2"] = TTF_RenderText_Blended(font, "LEVEL     8X8 ", { 238, 229, 0 });
 	surfaceList["textHomeSurface3"] = TTF_RenderText_Blended(font, "Quitter", { 238, 229, 0 });
-	surfaceList["textTitleSurface"] = TTF_RenderText_Blended(font, "Cyberpunk 2048", { 238, 229, 0 });
+	surfaceList["textTitleSurface"] = TTF_RenderText_Blended(font, "Cyberpounk 2048", { 238, 229, 0 });
 	surfaceList["textWinSurface"] = TTF_RenderText_Blended(font, "Vous vous etes enfuis avec Lucy !!!", { 238, 229, 0 });
 	surfaceList["textLoseSurface"] = TTF_RenderText_Blended(font, "Vous n'avez pas reussi a vous enfuir ", { 238, 229, 0 });
 	surfaceList["textLose2Surface"] = TTF_RenderText_Blended(font, "la MAXTAC vous a rattrape !!!", { 238, 229, 0 });
@@ -117,6 +117,7 @@ Window::Window() {
 	GameObject lucy(0, screenHeight / 2, screenWidth / 5, screenHeight / 2, 6, 36, 47, 0, renderer);
 	GameObject lucyText(-500, 0, screenWidth, screenHeight , 6, 36, 47, 0, renderer);
 	GameObject scoreText(0, 0, screenWidth / 5, screenHeight / 8, 6, 36, 47, 0, renderer);
+
 
 	gameObjectList["title"] = title;
 	gameObjectList["endTitle"] = endTitle;
@@ -178,6 +179,8 @@ Window::Window() {
 		}
 
 		SDL_RenderPresent(renderer);
+
+		SDL_Delay((1000 / targetFps) - (endTimerFPS - startTimerFPS));
 
 	}
 	Close();
@@ -303,6 +306,13 @@ void Window::Play() {
 				page = "home";
 				Mix_PlayMusic(musicList["musicHome"], -1);
 				printTextIntro = true;
+
+
+				previousScore = grid->score;
+				scoreText = "Score: " + to_string(grid->score);
+
+				surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, scoreText.c_str(), { 238, 229, 0 });
+				textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
 			}
 
 		}
@@ -310,41 +320,34 @@ void Window::Play() {
 			// Réinitialisez la variable lorsque la touche est relâchée
 			if (event.key.keysym.sym == SDLK_UP) {
 				arrowKeyWasPressed[0] = false;
-				cout << grid->score << endl;
 			}
 			else if (event.key.keysym.sym == SDLK_DOWN) {
 				arrowKeyWasPressed[1] = false;
-				cout << grid->score << endl;
 			}
 			else if (event.key.keysym.sym == SDLK_LEFT) {
 				arrowKeyWasPressed[2] = false;
-				cout << grid->score << endl;
 			}
 			else if (event.key.keysym.sym == SDLK_RIGHT) {
 				arrowKeyWasPressed[3] = false;
-				cout << grid->score << endl;
 			}
 		}
 	}
 	grid->Defeat(defeat);
-	grid->Win(win, 64);
+	grid->Win(win, valueWin);
 
 
 	if (previousScore != grid->score)
 	{
-		//SDL_FreeSurface(surfaceList["textScoreSurface"]);
-		//SDL_DestroyTexture(textureList["textScoreTexture"]);
 
 		previousScore = grid->score;
-		string scoreText = "Score: " + to_string(grid->score);
+		scoreText = "Score: " + to_string(grid->score);
 
 		surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, scoreText.c_str(), { 238, 229, 0 });
 		textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
-
+		SDL_FreeSurface(surfaceList["textScoreSurface"]);
 	}
 
 	gameObjectList["scoreText"].PrintText(textureList["textScoreTexture"]);
-
 	gameObjectList["lucy"].PrintImage(textureList["lucyTexture"]);
 	
 	if (deltaTime > 200 && deltaTime < 400) {
@@ -361,7 +364,7 @@ void Window::Play() {
 
 	//Text de Lucy
 	if (win) {
-		if (indexText < 8000) {
+		if (indexText < targetFps * 3) {
 			gameObjectList["lucyText"].PrintImage(textureList["winLucyTexture"]);
 		}
 		else {
@@ -375,7 +378,7 @@ void Window::Play() {
 
 	}
 	else if (defeat) {
-		if (indexText < 8000) {
+		if (indexText < targetFps * 3) {
 			gameObjectList["lucyText"].PrintImage(textureList["loseLucyTexture"]);
 		}
 		else {
@@ -388,7 +391,7 @@ void Window::Play() {
 	}
 	else {
 		if (printTextIntro) {
-			if (indexText < 8000) {
+			if (indexText < targetFps * 3) {
 				gameObjectList["lucyText"].PrintImage(textureList["introLucyTexture"]);
 			}
 			else {
@@ -399,8 +402,8 @@ void Window::Play() {
 			indexText += 1;
 		}
 		else if(printTextMid) {
-			if (grid->FindNumber(32)) {
-				if (indexText < 8000) {
+			if (grid->FindNumber(valueWin / 2)) {
+				if (indexText < targetFps * 3) {
 					gameObjectList["lucyText"].PrintImage(textureList["midLucyTexture"]);
 					indexText += 1;
 				}
@@ -432,6 +435,13 @@ void Window::Lose() {
 		}
 		else if (event.key.keysym.sym == SDLK_ESCAPE) {
 			// La touche Échap a été enfoncée
+			grid->score = 0;
+			previousScore = grid->score;
+			scoreText = "Score: " + to_string(grid->score);
+
+			surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, scoreText.c_str(), { 238, 229, 0 });
+			textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
+			SDL_FreeSurface(surfaceList["textScoreSurface"]);
 			page = "home";
 			Mix_PlayMusic(musicList["musicHome"], -1);
 			defeat = false;
@@ -443,6 +453,7 @@ void Window::Lose() {
 
 void Window::Win() {
 	SDL_RenderCopy(renderer, textureList["winTexture"], NULL, NULL);
+	gameObjectList["end2Title"].PrintText(textureList["textScoreTexture"]);
 	gameObjectList["endTitle"].PrintText(textureList["textWinTexture"]);
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT) {
@@ -450,11 +461,19 @@ void Window::Win() {
 		}
 		else if (event.key.keysym.sym == SDLK_ESCAPE) {
 			// La touche Échap a été enfoncée
+			grid->score = 0;
+			previousScore = grid->score;
+			scoreText = "Score: " + to_string(grid->score);
+
+			surfaceList["textScoreSurface"] = TTF_RenderText_Blended(font, scoreText.c_str(), { 238, 229, 0 });
+			textureList["textScoreTexture"] = SDL_CreateTextureFromSurface(renderer, surfaceList["textScoreSurface"]);
+			SDL_FreeSurface(surfaceList["textScoreSurface"]);
 			page = "home";
 			Mix_PlayMusic(musicList["musicHome"], -1);
 			win = false;
 		}
 	}
+
 }
 
 void Window::Close() {

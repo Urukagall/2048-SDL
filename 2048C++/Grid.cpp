@@ -31,7 +31,7 @@ Grid::Grid(int size, SDL_Renderer* renderer ,int screenHeight, int screenWidth)
 	int anchorY = screenHeight / 10;
 	int boxSize = screenHeight / 5;
 	boxSize = boxSize * 0.80;
-	color = { { 0, 255, 159 }, { 0, 232, 188 }, { 0, 205, 230 },{ 0, 174, 255 },{ 0, 134, 255 },{ 72, 84, 255 },{ 136, 48, 255 },{ 197, 48, 255 },{ 192, 21, 202 },{ 230, 21, 202 },{ 255, 255, 64 } };
+	color = { { 99, 255, 195 }, { 0, 232, 188 }, { 0, 205, 230 },{ 0, 174, 255 },{ 0, 134, 255 },{ 72, 84, 255 },{ 136, 48, 255 },{ 197, 48, 255 },{ 192, 21, 202 },{ 230, 21, 202 },{ 255, 255, 64 } };
 
 	this->size = size;
 	grid = vector<vector<Box>>(size, vector<Box>(size));
@@ -133,10 +133,11 @@ void Grid::PlaceNumber() {
 }
 
 //méthode de déplacement horizontale
-bool Grid::MoveHorizontal(string move) {
+bool Grid::MoveHorizontal(string move, bool test) {
 
 	//récupère les valuer de la grille avant le déplacement
 	vector<vector<Box>> gridStart = grid;
+	vector<vector<Box>> gridEnd = grid;
 
 	for (int i = 0; i < size; i++) {
 		vector<int> row;
@@ -155,7 +156,9 @@ bool Grid::MoveHorizontal(string move) {
 			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par la gauche
 			for (int j = 0; j < size - 1; j++) {
 				if (row[j] == row[j + 1] && row[j] != 0) {
-					score += row[j] * 2;
+					if (!test){
+						score += row[j] * 2;
+					}
 					row[j] *= 2;
 					row[j + 1] = 0;
 				}
@@ -169,7 +172,9 @@ bool Grid::MoveHorizontal(string move) {
 			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par la droite
 			for (int j = size - 1; j > 0; j--) {
 				if (row[j] == row[j - 1] && row[j] != 0) {
-					score += row[j] * 2;
+					if (!test) {
+						score += row[j] * 2;
+					}
 					row[j] *= 2;
 					row[j - 1] = 0;
 				}
@@ -201,13 +206,23 @@ bool Grid::MoveHorizontal(string move) {
 		}
 
 		//rajoute les valeurs dans la grille
-		for (int j = 0; j < size; j++) {
-			grid[i][j].value = newRow[j];
+		if (!test){
+			for (int j = 0; j < size; j++) {
+				grid[i][j].value = newRow[j];
+			}
+		}
+		else {
+			for (int j = 0; j < size; j++) {
+				gridEnd[i][j].value = newRow[j];
+			}
 		}
 	}
 
-	//récupère les valuer de la grille après le déplacement
-	vector<vector<Box>> gridEnd = grid;
+	//récupère les valeurs de la grille après le déplacement
+
+	if (!test) {
+		gridEnd = grid;
+	}
 
 	for (int i = 0; i < size; i++)
 	{
@@ -222,11 +237,12 @@ bool Grid::MoveHorizontal(string move) {
 	return false;
 }
 
-bool Grid::MoveVertical(string move) {
+bool Grid::MoveVertical(string move, bool test) {
 
 	//récupère les valuer de la grille avant le déplacement
 
 	vector<vector<Box>> gridStart = grid;
+	vector<vector<Box>> gridEnd = grid;
 
 	for (int i = 0; i < size; i++) {
 		vector<int> column;
@@ -245,7 +261,9 @@ bool Grid::MoveVertical(string move) {
 			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par le haut
 			for (int j = 0; j < size - 1; j++) {
 				if (column[j] == column[j + 1] && column[j] != 0) {
-					score += column[j] * 2;
+					if (!test){
+						score += column[j] * 2;
+					}
 					column[j] *= 2;
 					column[j + 1] = 0;
 				}
@@ -259,7 +277,9 @@ bool Grid::MoveVertical(string move) {
 			//fusionne les nombre qui son côte à côte si ils ont les même valeurs, en commencant par le bas
 			for (int j = size - 1; j >= 1; j--) {
 				if (column[j] == column[j - 1] && column[j] != 0) {
-					score += column[j] * 2;
+					if (!test) {
+						score += column[j] * 2;
+					}
 					column[j] *= 2;
 					column[j - 1] = 0;
 				}
@@ -287,13 +307,22 @@ bool Grid::MoveVertical(string move) {
 			}
 		}
 		//rajoute les valeurs dans la grille
-		for (int j = 0; j < size; j++) {
-			grid[j][i].value = newColumn[j];
+		if (!test){
+			for (int j = 0; j < size; j++) {
+				grid[j][i].value = newColumn[j];
+			}
+		}
+		else {
+			for (int j = 0; j < size; j++) {
+				gridEnd[j][i].value = newColumn[j];
+			}
 		}
 	}
 
-
-	vector<vector<Box>> gridEnd = grid;
+	if (!test){
+		gridEnd = grid;
+	}
+	
 
 	for (int i = 0; i < size; i++)
 	{
@@ -321,7 +350,7 @@ bool Grid::FindNumber(int number) {
 	return false;
 }
 
-void Grid::Defeat(bool& ifDefeat) {
+void Grid::Defeat(bool& ifDefeat) {	
 	int zero = 0;
 	for (int i = 0; i < size; i++) {
 		for (int y = 0; y < size; y++) {
@@ -331,7 +360,10 @@ void Grid::Defeat(bool& ifDefeat) {
 		}
 	}
 	if (zero == 0) {
-		ifDefeat = true;
+		if (!MoveHorizontal("left", true) and !MoveHorizontal("right", true) and !MoveVertical("up", true) and !MoveVertical("down", true))
+		{
+			ifDefeat = true;
+		}
 	}
 }
 void Grid::Win(bool& win, int value) {

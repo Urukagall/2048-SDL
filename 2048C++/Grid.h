@@ -22,8 +22,8 @@ public:
 	void Print();
 	void PlaceNumber();
 	int GenerateRandomNumber(int randomNumber);
-	bool MoveHorizontal(string move);
-	bool MoveVertical(string move);
+	bool MoveHorizontal(string move,bool test = false);
+	bool MoveVertical(string move, bool test = false);
 	bool FindNumber(int number);
 	void Defeat(bool& ifDefeat);
 	void Win(bool& win, int value);
